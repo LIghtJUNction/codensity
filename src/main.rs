@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use codensity::{analyze_path, build_database, render_text, safe_input_label};
+use codensity::{analyze_ledger_path, analyze_path, build_database, render_text, safe_input_label};
 
 #[derive(Debug, Parser)]
 #[command(name = "codensity", version, about)]
@@ -21,6 +21,9 @@ enum Command {
         /// Output representation.
         #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
         format: OutputFormat,
+        /// Run only the frozen single-zstd schema-v1 ledger.
+        #[arg(long)]
+        ledger_only: bool,
     },
     /// Work with reproducible analysis databases.
     Database {
@@ -49,9 +52,17 @@ enum OutputFormat {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
-        Command::Analyze { path, format } => {
+        Command::Analyze {
+            path,
+            format,
+            ledger_only,
+        } => {
             let label = safe_input_label(&path)?;
-            let result = analyze_path(&path, &label)?;
+            let result = if ledger_only {
+                analyze_ledger_path(&path, &label)?
+            } else {
+                analyze_path(&path, &label)?
+            };
             match format {
                 OutputFormat::Text => print!("{}", render_text(&result)),
                 OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),

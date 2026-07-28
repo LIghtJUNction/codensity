@@ -326,7 +326,7 @@ fn analyze_should_not_open_unreadable_unknown_regular_files() -> Result<()> {
 }
 
 #[test]
-fn analysis_json_should_have_stable_schema_v1_shape_and_numeric_ratios() -> Result<()> {
+fn analysis_json_should_have_stable_schema_v2_shape_and_numeric_ratios() -> Result<()> {
     let fixture = Fixture::new("json-shape")?;
     fixture.write("main.rs", b"fn main() {}\n")?;
     let result = analyze_path(&fixture.path, "fixture")?;
@@ -350,6 +350,12 @@ fn analysis_json_should_have_stable_schema_v1_shape_and_numeric_ratios() -> Resu
         .keys()
         .map(String::as_str)
         .collect();
+    let profile_keys: std::collections::BTreeSet<_> = value["profile"]
+        .as_object()
+        .context("profile must be an object")?
+        .keys()
+        .map(String::as_str)
+        .collect();
 
     assert_eq!(
         (
@@ -363,9 +369,10 @@ fn analysis_json_should_have_stable_schema_v1_shape_and_numeric_ratios() -> Resu
             top_level_keys,
             metric_keys,
             language_keys,
+            profile_keys,
         ),
         (
-            Some(1),
+            Some(2),
             Some(env!("CARGO_PKG_VERSION")),
             Some(codensity::zstd_version()),
             Some(PROTOCOL_ID),
@@ -377,6 +384,7 @@ fn analysis_json_should_have_stable_schema_v1_shape_and_numeric_ratios() -> Resu
                 "input_label",
                 "languages",
                 "overall",
+                "profile",
                 "protocol",
                 "schema_version",
                 "skipped_file_count",
@@ -405,6 +413,19 @@ fn analysis_json_should_have_stable_schema_v1_shape_and_numeric_ratios() -> Resu
             ]
             .into_iter()
             .collect(),
+            [
+                "baselines",
+                "compression",
+                "duplication",
+                "entropy",
+                "interpretation",
+                "noise",
+                "protocol",
+                "score",
+                "structure",
+            ]
+            .into_iter()
+            .collect(),
         )
     );
     Ok(())
@@ -422,10 +443,11 @@ fn text_rendering_should_be_byte_identical_for_repeated_results() -> Result<()> 
 
     assert!(
         first_text == second_text
-            && first_text.contains("schema: 1\n")
+            && first_text.contains("schema: 2\n")
             && first_text.contains(&format!("codensity: {}\n", env!("CARGO_PKG_VERSION")))
             && first_text.contains(&format!("zstd: {}\n", codensity::zstd_version()))
             && first_text.contains(&format!("protocol: {PROTOCOL_ID}\n"))
+            && first_text.contains("information_density:")
     );
     Ok(())
 }
@@ -443,6 +465,35 @@ fn cli_analyze_should_use_literal_src_as_default_path() -> Result<()> {
 
     assert!(
         output.status.success() && value["input_label"] == "src",
+        "status: {:?}, stderr: {}",
+        output.status,
+        String::from_utf8_lossy(&output.stderr)
+    );
+    Ok(())
+}
+
+#[test]
+fn cli_analyze_should_offer_the_frozen_ledger_only_mode() -> Result<()> {
+    let fixture = Fixture::new("cli-ledger-only")?;
+    fixture.write("main.rs", b"fn main() {}\n")?;
+
+    let output = Command::new(env!("CARGO_BIN_EXE_codensity"))
+        .args([
+            "analyze",
+            fixture.path.to_str().context("fixture path is not UTF-8")?,
+            "--format",
+            "json",
+            "--ledger-only",
+        ])
+        .output()?;
+    let value: Value = serde_json::from_slice(&output.stdout)?;
+
+    assert!(
+        output.status.success()
+            && value["schema_version"] == 1
+            && value
+                .as_object()
+                .is_some_and(|value| !value.contains_key("profile")),
         "status: {:?}, stderr: {}",
         output.status,
         String::from_utf8_lossy(&output.stderr)
@@ -954,6 +1005,11 @@ fn database_should_atomically_replace_existing_regular_output() -> Result<()> {
     let value: Value = serde_json::from_slice(&fs::read(&output_path)?)?;
 
     assert_eq!(value["schema_version"], 1);
+    assert!(
+        value["projects"][0]["analysis"]
+            .as_object()
+            .is_some_and(|analysis| !analysis.contains_key("profile"))
+    );
     Ok(())
 }
 
@@ -971,6 +1027,123 @@ fn overall_compressed_size_may_differ_from_per_language_frame_sum() -> Result<()
         .sum();
 
     assert_ne!(result.overall.compressed_bytes, language_sum);
+    Ok(())
+}
+
+#[test]
+fn profile_should_cross_check_algorithms_and_record_zstd_curve() -> Result<()> {
+    let fixture = Fixture::new("compression-profile")?;
+    fixture.write(
+        "main.rs",
+        b"fn repeated() { println!(\"density\"); }\n"
+            .repeat(128)
+            .as_slice(),
+    )?;
+
+    let result = analyze_path(&fixture.path, "fixture")?;
+    let profile = result.profile.context("profile missing")?;
+    let algorithms: Vec<_> = profile
+        .compression
+        .algorithms
+        .iter()
+        .map(|measurement| measurement.algorithm.as_str())
+        .collect();
+    let levels: Vec<_> = profile
+        .compression
+        .zstd_curve
+        .iter()
+        .map(|point| point.level)
+        .collect();
+
+    assert_eq!(algorithms, ["gzip", "zstd", "brotli", "xz"]);
+    assert_eq!(levels, [1, 3, 9, 19, 22]);
+    assert!(profile.compression.consensus_ratio > 0.0);
+    assert!(profile.compression.ratio_spread >= 0.0);
+    Ok(())
+}
+
+#[test]
+fn profile_should_detect_repeated_blocks_without_parsing_an_ast() -> Result<()> {
+    let fixture = Fixture::new("duplication-profile")?;
+    let repeated = b"pub fn copied_block() {\n    let value = 42;\n    println!(\"{value}\");\n}\n"
+        .repeat(128);
+    fixture.write("first.rs", &repeated)?;
+    fixture.write("second.rs", &repeated)?;
+
+    let result = analyze_path(&fixture.path, "fixture")?;
+    let profile = result.profile.context("profile missing")?;
+
+    assert!(profile.duplication.duplicate_ratio > 0.30);
+    assert_eq!(profile.duplication.window_bytes, 64);
+    assert_eq!(profile.score.template_repetition_risk, "high");
+    Ok(())
+}
+
+#[test]
+fn profile_should_penalize_random_looking_noise() -> Result<()> {
+    let fixture = Fixture::new("noise-profile")?;
+    let mut state = 0x1234_5678_9abc_def0_u64;
+    let mut random = Vec::with_capacity(16 * 1024);
+    for _ in 0..16 * 1024 {
+        state ^= state << 13;
+        state ^= state >> 7;
+        state ^= state << 17;
+        random.push((state & 0xff) as u8);
+    }
+    fixture.write("noise.rs", &random)?;
+
+    let result = analyze_path(&fixture.path, "fixture")?;
+    let profile = result.profile.context("profile missing")?;
+
+    assert!(profile.noise.noise_ratio > 0.90);
+    assert!(profile.score.signal < 10.0);
+    assert!(profile.score.compression < 10.0);
+    assert!(profile.score.information_density < 50.0);
+    Ok(())
+}
+
+#[test]
+fn profile_score_should_use_bounded_weights_and_expose_baseline_confidence() -> Result<()> {
+    let fixture = Fixture::new("score-profile")?;
+    fixture.write(
+        "main.py",
+        b"def calculate(value):\n    return value * 2 + 1\n"
+            .repeat(2048)
+            .as_slice(),
+    )?;
+
+    let result = analyze_path(&fixture.path, "fixture")?;
+    let profile = result.profile.context("profile missing")?;
+    let weights = &profile.score.weights;
+    let total = weights.compression
+        + weights.entropy
+        + weights.uniqueness
+        + weights.signal
+        + weights.distribution;
+    let python = profile
+        .baselines
+        .iter()
+        .find(|baseline| baseline.language == "Python")
+        .context("Python baseline missing")?;
+
+    assert!((total - 1.0).abs() < f64::EPSILON);
+    assert!(
+        [
+            weights.compression,
+            weights.entropy,
+            weights.uniqueness,
+            weights.signal,
+            weights.distribution,
+        ]
+        .into_iter()
+        .all(|weight| weight <= 0.30)
+    );
+    assert_eq!(python.sample_count, 3);
+    assert!(python.percentile.is_some());
+    assert!(matches!(
+        profile.score.confidence.as_str(),
+        "low" | "medium" | "high"
+    ));
     Ok(())
 }
 

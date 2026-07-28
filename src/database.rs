@@ -4,7 +4,7 @@ use std::io::{BufWriter, Write};
 use std::path::{Component, Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crate::analyzer::analyze_path;
+use crate::analyzer::analyze_ledger_path;
 use crate::error::{CodensityError, Result};
 use crate::model::{
     DATABASE_SCHEMA_VERSION, Database, DatabaseProject, Manifest, ManifestProject, PROTOCOL_ID,
@@ -54,9 +54,9 @@ pub fn load_manifest(path: &Path) -> Result<Manifest> {
 
 /// Builds and atomically writes a deterministic schema-v1 database.
 ///
-/// Every project is processed through the same [`analyze_path`] entry point as
-/// the CLI. The destination is untouched until a complete sibling temporary
-/// file has been flushed and synchronized.
+/// Every project is processed through the frozen schema-v1 compression ledger.
+/// The destination is untouched until a complete sibling temporary file has
+/// been flushed and synchronized.
 ///
 /// # Errors
 ///
@@ -71,7 +71,7 @@ pub fn build_database(manifest_path: &Path, output_path: &Path) -> Result<Databa
 
     let mut projects = Vec::with_capacity(prepared_projects.len());
     for prepared in prepared_projects {
-        let analysis = analyze_path(&prepared.canonical_root, &prepared.project.name)?;
+        let analysis = analyze_ledger_path(&prepared.canonical_root, &prepared.project.name)?;
         projects.push(database_project(prepared.project, analysis));
     }
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "codensity_version": "0.1.0",
+  "codensity_version": "0.2.0",
   "zstd_version": "1.5.7",
   "protocol": "codensity-zstd19-concat-v1",
   "projects": [
@@ -12,7 +12,7 @@
       "archive_sha256": "62a41cbbde6c99e8b5268c8d972785c563260cea399a85e61a9c19e04c1219a9",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "codeprism",
@@ -109,7 +109,7 @@
       "archive_sha256": "bb5b296168c7b149d493666117ca621a7e65509ebbd76210630ae35b544d6129",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "rust-docs-mcp",
@@ -152,7 +152,7 @@
       "archive_sha256": "b09951236f483279bf2e914a8ca0375d161fc25a43229510bc8ca88d382bfef4",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "the-pantry",

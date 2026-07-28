@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "codensity_version": "0.1.0",
+  "codensity_version": "0.2.0",
   "zstd_version": "1.5.7",
   "protocol": "codensity-zstd19-concat-v1",
   "projects": [
@@ -12,7 +12,7 @@
       "archive_sha256": "f4e356097d4107f841914eee3bd1332280cf59c998b0d865dd64eb796e271f8a",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "afnetworking",
@@ -64,7 +64,7 @@
       "archive_sha256": "553e6c94498c42edaecc9c8459f1a320a7e4cf49155635cf7123212bb9f09cf2",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "catch2",
@@ -134,7 +134,7 @@
       "archive_sha256": "c96267cb1b79db586c5509364c5501a2273fdbe7299fe7e43cf28409decd8254",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "gin",
@@ -168,7 +168,7 @@
       "archive_sha256": "fde9c6ee398be281ff4f12d7341d56179874b2588a7dcbfe7c30469c58abc961",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "guava",
@@ -229,7 +229,7 @@
       "archive_sha256": "f5b28eca6aa3a4fdc389bbdda66f9de124b477822f62879e0b2f7df5030e3e6f",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "kotlinx-coroutines",
@@ -290,7 +290,7 @@
       "archive_sha256": "15c8ce3805275a1f3bd52610a50678eb9bd0d0a930a62278570b267dc781ad9f",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "laravel-framework",
@@ -333,7 +333,7 @@
       "archive_sha256": "9dbf2a0f44397c480cac4d381b0d5b6ee40a81654df841372ff7c09fd57b5670",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "neovim",
@@ -412,7 +412,7 @@
       "archive_sha256": "9abbd44e9524ee4d1f43f202b91dffa34151212d54fd13b9fa779bfc75f4e881",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "oh-my-zsh",
@@ -455,7 +455,7 @@
       "archive_sha256": "bfa2d425e15e94f2f8d2f2d8674aa12c51bfc7b4f7b7a245c8a30395413c172f",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "rails",
@@ -507,7 +507,7 @@
       "archive_sha256": "9bfe6c07fde98048df7a03be9de788dbf17211875e4ca348a1a7b684691d5b25",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "react",
@@ -595,7 +595,7 @@
       "archive_sha256": "f43c1e132868abb6a7002ec4a4232b86610bf55c2deba17ef7b53cdc39794eae",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "requests",
@@ -629,7 +629,7 @@
       "archive_sha256": "c6e521a7d85da25d920e2a95ba7c35d19cfe2057d30d1c4f6f8867aaf669b42b",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "serilog",
@@ -663,7 +663,7 @@
       "archive_sha256": "57f7faed9c572b7517bac082eed28f48653d49e0b86e1cdd239602a09112e8fe",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "swift-algorithms",
@@ -697,7 +697,7 @@
       "archive_sha256": "bfce164d0d86da62a2b79c2585a7e0fc08ff8d15ce9c87748a756de4960531e8",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.2.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "typescript",

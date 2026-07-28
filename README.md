@@ -2,22 +2,38 @@
 
 # `codensity`
 
-#### SOURCE COMPRESSION LEDGER · 可复现的源码压缩密度记录
+#### SOURCE INFORMATION PROFILE · 跨语言源码信息密度分析
 
-<sub>以固定协议保留可比较的字节事实，而不是把一个数字伪装成质量结论。</sub>
+<sub>多种压缩器、熵、重复、噪声、结构和语言基线共同描述源码；没有任何单项可以独占结论。</sub>
 
 [![Rust 2024](https://img.shields.io/badge/Rust-2024-b55b36?style=flat-square&logo=rust&logoColor=white)](Cargo.toml)
-[![Protocol v1](https://img.shields.io/badge/protocol-v1-315f54?style=flat-square)](#协议)
-[![zstd level 19](https://img.shields.io/badge/zstd-level%2019-315f54?style=flat-square)](#协议)
+[![Profile v2](https://img.shields.io/badge/profile-v2-315f54?style=flat-square)](#信息画像-v2)
+[![zstd level 19](https://img.shields.io/badge/zstd-level%2019-315f54?style=flat-square)](#压缩账本-v1)
+[![4 compressors](https://img.shields.io/badge/compressors-4-315f54?style=flat-square)](#信息画像-v2)
 [![25 language mappings](https://img.shields.io/badge/language%20mappings-25-315f54?style=flat-square)](#基准主流开源语言)
 [![14 OSS snapshots](https://img.shields.io/badge/OSS%20fixed%20snapshots-14-315f54?style=flat-square)](#基准主流开源语言)
 [![3 author self-disclosed AI samples](https://img.shields.io/badge/AI%20self--disclosed%20samples-3-315f54?style=flat-square)](#真实-ai-主导项目样本)
 
-[`分析`](#分析源码) · [`协议`](#协议) · [`OSS 基准`](#基准主流开源语言) · [`真实 AI 样本`](#真实-ai-主导项目样本) · [`重建`](#从仓库根目录重建)
+[`分析`](#分析源码) · [`画像`](#信息画像-v2) · [`协议`](#压缩账本-v1) · [`OSS 基准`](#基准主流开源语言) · [`重建`](#从仓库根目录重建)
 
 </div>
 
-`codensity` 在固定、可复现的协议下统计源码的压缩密度：识别并排序源码文件，将其**原始字节**串接为一个规范流，以 zstd level 19 压缩，并报告 `compressed / original`。比率越低只表示同一协议下字节更容易压缩；它**不是**代码质量、可读性、可维护性、安全性或 AI 来源的评分。
+`codensity` 是一个与语言语法无关的源码信息画像工具。它保留 v1 中可复现的
+zstd-19 压缩账本，并在 v2 中增加：
+
+- gzip、zstd、Brotli、XZ 四种压缩器的交叉测量；
+- zstd 1/3/9/19/22 五个级别的压缩曲线；
+- Shannon 字节熵和高熵窗口；
+- 基于双滚动指纹采样的精确重复块估计，不解析 AST；
+- 随机长串、高熵内容、minified 文件和生成标记的噪声风险；
+- 文件大小分布、集中度、Gini 系数和长尾判断；
+- 按语言 OSS 基线、样本量、百分位和置信度；
+- 固定上限权重的分项结果与综合信息密度分数。
+
+压缩比仍然定义为 `compressed / original`。比率低表示字节更容易压缩，通常意味着
+重复模式更多；它本身不等于更高的信息密度。高熵随机串虽然难压缩，也会被噪声层
+识别并削弱压缩分项。最终结果描述字节层面的源码特征，不判定代码质量、正确性、
+安全性、可维护性或 AI 作者身份。
 
 ![codensity 协议图：排序源码文件、无分隔串接原始字节、使用 zstd 19 独立帧压缩，最后计算压缩字节与原始字节之比](assets/codensity-protocol.svg)
 
@@ -33,39 +49,75 @@
 codensity analyze
 codensity analyze path/to/project --format text
 codensity analyze path/to/project --format json
+codensity analyze path/to/project --ledger-only
 ```
 
-省略路径时，字面默认值是 `src`。文本输出适合阅读；JSON 使用数值比率，并提供 schema、工具、zstd 与协议版本、输入逻辑标签、总体结果、按语言结果和跳过文件数。
+省略路径时，字面默认值是 `src`。文本输出适合阅读；JSON 提供稳定 schema、冻结
+账本、完整 `profile`、分项值、固定权重和解释边界。`codensity analyze` 会执行完整
+画像，适合离线研究；大型仓库需要多次串流压缩，因此会明显慢于 v0.1 的单次 zstd
+分析。只需要可复现的旧压缩账本时使用 `--ledger-only`。
 
-### 项目自分析
+文本输出的核心部分类似：
 
-使用 release 构建分析 `codensity` 当前源码：
-
-```bash
-target/release/codensity analyze . --format json
+```text
+files: 42
+original: 318420
+compressed: 51234
+ratio: 0.160900
+profile:
+  information_density: 73.41
+  confidence: medium
+  compression:
+    gzip (level=9,mtime=0): ...
+    zstd (level=19): ...
+    brotli (quality=11,lgwin=22): ...
+    xz (preset=9,check=crc64): ...
+  entropy: 5.2841 bits/byte
+  duplication: 12.80%
+  noise: 0.34%
+  template_repetition_risk: low
 ```
 
-| 指标 | 结果 |
-|---|---:|
-| Rust 文件 | 8 |
-| 原始字节 | 75,404 |
-| zstd 压缩字节 | 13,908 |
-| 压缩比 | 0.184446 |
-| 节省率 | 81.56% |
-| 跳过文件 | 4 |
-| 源码流 SHA-256 | `02577f73a282b1f94ebc8594bd9926b1b4a83ca5ab68ebadf18d1ef78b68c39f` |
+## 信息画像 v2
 
-这里的四个跳过文件是未被语言表识别的 `.gitignore`、`Cargo.toml`、`Cargo.lock` 和 `README.md`；工具不会读取未知扩展名的内容。`.git`、`.codensity` 和 `target` 等固定排除目录不计入跳过文件。
+综合分数由五个分项相加：
 
-本项目的 `0.184446` 高于 12 个 Rust 仓库样本的中位数 `0.132867` 和四分位上界 `0.158087`，即在当前协议下比样本中的多数项目更难压缩。不过，本项目的 Rust 语料只有约 74 KiB，甚至小于基准中最小的项目；与小型 Rust 项目组的 `0.167389–0.181687` 相比则只略高于上沿。更合理的解释是小语料中的 zstd 帧固定开销占比更高、可供跨文件复用的重复模式更少，而不是代码质量较差。
+| 分项 | 权重上限 | 含义 |
+|---|---:|---|
+| 语言归一化压缩 | 30% | 项目各语言的 zstd-19 比率相对同语言基线的位置；噪声会降低该项 |
+| 熵 | 15% | 字节分布是否落在常见源码区间；极低和接近随机的极高熵都会降分 |
+| 独特性 | 25% | 未被重复指纹窗口覆盖的比例 |
+| 有效信号 | 20% | 未被高熵、随机长串、minified 或生成标记覆盖的比例 |
+| 文件分布 | 10% | 是否过度集中在少数超大文件 |
 
-## 协议
+所有分项均在 `0–100`，固定权重之和为 1，单项权重不超过 30%。随机数据会同时损失
+熵、有效信号以及经信号校正后的压缩分项；大段模板会同时损失压缩和独特性。
+`confidence` 结合有效源码量和语言基线样本数，只说明比较稳定性，不是分数高低。
 
-首版协议标识为 `codensity-zstd19-concat-v1`。它只扫描普通文件、不跟随符号链接、遵循 `.gitignore`、保留隐藏源码，并固定排除 `.git`、`.codensity`、`target`、`node_modules`、`vendor`、`dist`、`build`、`.next` 和 `.cache` 目录。受支持源码按 POSIX 风格相对路径逐字节排序，然后不添加路径、分隔符、长度、换行或转码地串接原始字节。
+语言基线来自仓库中冻结的 14 个 OSS 快照，只纳入单个项目/语言至少 64 KiB 的流。
+样本数始终随结果输出；少于 3 个样本时不伪造百分位。当前基线规模仍小，适合做
+初步归一化和暴露偏差，尚不适合当作行业常模。
 
-总体流及每种语言的流都分别使用单线程语义的 zstd 级别 19 压缩为一个独立帧，并对未压缩流计算 SHA-256。空的已识别文件计入文件数；只有空文件或没有可识别非空源码时返回错误。若某种语言只有空文件，它的比率和节省率是 `null`。总体压缩字节数通常不等于各语言压缩字节数之和，因为它们是不同的压缩流。
+`template_repetition_risk` 只组合重复率和压缩共识。它不叫 AI 检测，也不能推断作者
+是人还是模型。
 
-协议标识、schema 版本、codensity 版本和 zstd 版本都是结果的一部分。压缩参数、语言表、过滤规则、排序或串接方法变化都会影响可比较性，因此不能在相同协议标识下静默修改。
+## 压缩账本 v1
+
+冻结协议标识为 `codensity-zstd19-concat-v1`。它只扫描普通文件、不跟随符号链接、
+遵循 `.gitignore`、保留隐藏源码，并固定排除 `.git`、`.codensity`、`target`、
+`node_modules`、`vendor`、`dist`、`build`、`.next` 和 `.cache` 目录。受支持源码
+按 POSIX 风格相对路径逐字节排序，然后不添加路径、分隔符、长度、换行或转码地
+串接原始字节。
+
+总体流及每种语言的流都分别使用单线程语义的 zstd 级别 19 压缩为一个独立帧，并对
+未压缩流计算 SHA-256。空的已识别文件计入文件数；只有空文件或没有可识别非空源码
+时返回错误。若某种语言只有空文件，它的比率和节省率是 `null`。总体压缩字节数通常
+不等于各语言压缩字节数之和，因为它们是不同的压缩流。
+
+协议标识、schema 版本、codensity 版本和 zstd 版本都是结果的一部分。压缩参数、
+语言表、过滤规则、排序或串接方法变化都会影响可比较性，因此不能在相同协议标识下
+静默修改。数据库构建仍输出 schema-v1 账本，不包含 v2 `profile`，从而保持已有
+基准的输入和指标闭环稳定。
 
 ## 构建数据库
 
