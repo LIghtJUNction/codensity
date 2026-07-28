@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {
+      "name": "afnetworking",
+      "version": "4.0.1",
+      "revision": "ffae2391ab0c29dc88eb0a58d2f5b2c2c27cadbf",
+      "source_url": "https://github.com/AFNetworking/AFNetworking",
+      "archive_sha256": "f4e356097d4107f841914eee3bd1332280cf59c998b0d865dd64eb796e271f8a",
+      "path": "sources/afnetworking"
+    },
+    {
+      "name": "catch2",
+      "version": "v3.8.1",
+      "revision": "2b60af89e23d28eefc081bc930831ee9d45ea58b",
+      "source_url": "https://github.com/catchorg/Catch2",
+      "archive_sha256": "553e6c94498c42edaecc9c8459f1a320a7e4cf49155635cf7123212bb9f09cf2",
+      "path": "sources/catch2"
+    },
+    {
+      "name": "gin",
+      "version": "v1.11.0",
+      "revision": "6ad6205e9c94a4b8a320219e28c37c29d22a7a2c",
+      "source_url": "https://github.com/gin-gonic/gin",
+      "archive_sha256": "c96267cb1b79db586c5509364c5501a2273fdbe7299fe7e43cf28409decd8254",
+      "path": "sources/gin"
+    },
+    {
+      "name": "guava",
+      "version": "v33.4.8",
+      "revision": "f06690fa3e874f65515e8fd338a74d636e2c792f",
+      "source_url": "https://github.com/google/guava",
+      "archive_sha256": "fde9c6ee398be281ff4f12d7341d56179874b2588a7dcbfe7c30469c58abc961",
+      "path": "sources/guava"
+    },
+    {
+      "name": "kotlinx-coroutines",
+      "version": "1.10.2",
+      "revision": "5f8900478a8e20c073145b1608fbc71fe3d7378b",
+      "source_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "archive_sha256": "f5b28eca6aa3a4fdc389bbdda66f9de124b477822f62879e0b2f7df5030e3e6f",
+      "path": "sources/kotlinx-coroutines"
+    },
+    {
+      "name": "laravel-framework",
+      "version": "v12.0.0",
+      "revision": "bd8aeb64d3f9fa4b11690d702bdf289f5f32ae97",
+      "source_url": "https://github.com/laravel/framework",
+      "archive_sha256": "15c8ce3805275a1f3bd52610a50678eb9bd0d0a930a62278570b267dc781ad9f",
+      "path": "sources/laravel-framework"
+    },
+    {
+      "name": "neovim",
+      "version": "v0.11.3",
+      "revision": "b2684d9f6658544d75e2431a06bcf21fe80673f8",
+      "source_url": "https://github.com/neovim/neovim",
+      "archive_sha256": "9dbf2a0f44397c480cac4d381b0d5b6ee40a81654df841372ff7c09fd57b5670",
+      "path": "sources/neovim"
+    },
+    {
+      "name": "oh-my-zsh",
+      "version": "master-7ea697fd",
+      "revision": "7ea697fd8138550ddf7262456d412f0dcd1cbf84",
+      "source_url": "https://github.com/ohmyzsh/ohmyzsh",
+      "archive_sha256": "9abbd44e9524ee4d1f43f202b91dffa34151212d54fd13b9fa779bfc75f4e881",
+      "path": "sources/oh-my-zsh"
+    },
+    {
+      "name": "rails",
+      "version": "v8.0.2",
+      "revision": "3235827585d87661942c91bc81f64f56d710f0b2",
+      "source_url": "https://github.com/rails/rails",
+      "archive_sha256": "bfa2d425e15e94f2f8d2f2d8674aa12c51bfc7b4f7b7a245c8a30395413c172f",
+      "path": "sources/rails"
+    },
+    {
+      "name": "react",
+      "version": "v19.1.1",
+      "revision": "02ef49580922f87180f32618b9d1c70b75b968b7",
+      "source_url": "https://github.com/facebook/react",
+      "archive_sha256": "9bfe6c07fde98048df7a03be9de788dbf17211875e4ca348a1a7b684691d5b25",
+      "path": "sources/react"
+    },
+    {
+      "name": "requests",
+      "version": "v2.32.5",
+      "revision": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "source_url": "https://github.com/psf/requests",
+      "archive_sha256": "f43c1e132868abb6a7002ec4a4232b86610bf55c2deba17ef7b53cdc39794eae",
+      "path": "sources/requests"
+    },
+    {
+      "name": "serilog",
+      "version": "v4.3.0",
+      "revision": "1b461379f4e218a939d5c94897df2a1dbbf90573",
+      "source_url": "https://github.com/serilog/serilog",
+      "archive_sha256": "c6e521a7d85da25d920e2a95ba7c35d19cfe2057d30d1c4f6f8867aaf669b42b",
+      "path": "sources/serilog"
+    },
+    {
+      "name": "swift-algorithms",
+      "version": "1.2.1",
+      "revision": "87e50f483c54e6efd60e885f7f5aa946cee68023",
+      "source_url": "https://github.com/apple/swift-algorithms",
+      "archive_sha256": "57f7faed9c572b7517bac082eed28f48653d49e0b86e1cdd239602a09112e8fe",
+      "path": "sources/swift-algorithms"
+    },
+    {
+      "name": "typescript",
+      "version": "v5.9.3",
+      "revision": "c63de15a992d37f0d6cec03ac7631872838602cb",
+      "source_url": "https://github.com/microsoft/TypeScript",
+      "archive_sha256": "bfce164d0d86da62a2b79c2585a7e0fc08ff8d15ce9c87748a756de4960531e8",
+      "path": "sources/typescript"
+    }
+  ]
+}

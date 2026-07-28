@@ -1,12 +1,31 @@
-# codensity
+<div align="center">
 
-`codensity` 是一个可复现的源代码压缩密度分析工具。它先以确定规则选择并排序源码，再把原始字节串接为一个流，用固定参数压缩：
+# `codensity`
 
-```text
-compression_ratio = compressed_source_bytes / original_source_bytes
-```
+#### SOURCE COMPRESSION LEDGER · 可复现的源码压缩密度记录
 
-比率越低，表示在同一协议下源码字节具有更高的可压缩性；`savings = 1 - compression_ratio`。这个指标衡量的是固定语言映射、规模和过滤规则下的规律性与冗余度，**不能单独视为代码质量、可读性、可维护性或抽象水平的评分**。
+<sub>以固定协议保留可比较的字节事实，而不是把一个数字伪装成质量结论。</sub>
+
+[![Rust 2024](https://img.shields.io/badge/Rust-2024-b55b36?style=flat-square&logo=rust&logoColor=white)](Cargo.toml)
+[![Protocol v1](https://img.shields.io/badge/protocol-v1-315f54?style=flat-square)](#协议)
+[![zstd level 19](https://img.shields.io/badge/zstd-level%2019-315f54?style=flat-square)](#协议)
+[![25 language mappings](https://img.shields.io/badge/language%20mappings-25-315f54?style=flat-square)](#基准主流开源语言)
+[![14 OSS snapshots](https://img.shields.io/badge/OSS%20fixed%20snapshots-14-315f54?style=flat-square)](#基准主流开源语言)
+[![3 author self-disclosed AI samples](https://img.shields.io/badge/AI%20self--disclosed%20samples-3-315f54?style=flat-square)](#真实-ai-主导项目样本)
+
+[`分析`](#分析源码) · [`协议`](#协议) · [`OSS 基准`](#基准主流开源语言) · [`真实 AI 样本`](#真实-ai-主导项目样本) · [`重建`](#从仓库根目录重建)
+
+</div>
+
+`codensity` 在固定、可复现的协议下统计源码的压缩密度：识别并排序源码文件，将其**原始字节**串接为一个规范流，以 zstd level 19 压缩，并报告 `compressed / original`。比率越低只表示同一协议下字节更容易压缩；它**不是**代码质量、可读性、可维护性、安全性或 AI 来源的评分。
+
+![codensity 协议图：排序源码文件、无分隔串接原始字节、使用 zstd 19 独立帧压缩，最后计算压缩字节与原始字节之比](assets/codensity-protocol.svg)
+
+<div align="center">
+  <img src="assets/codensity-editorial.png" width="760" alt="暖色编辑插画：一台手动压印机将有序的源码纸带压成一条测量刻度，象征在固定协议下记录可复核的压缩结果。">
+  <br>
+  <sub>一份研究账册：先固定输入与程序，再阅读结果。</sub>
+</div>
 
 ## 分析源码
 
@@ -75,28 +94,131 @@ schema v1 清单示例：
 
 输出使用稳定的格式化 JSON，通过目标文件旁的临时文件完整写入后原子重命名；数据库只保留项目来源信息，不会序列化本地 `path`。在 Windows 上，标准库不能原子替换已有目标时，工具会安全报错并保留原目标，而不会先删除再重命名。
 
-## 基准数据库
+## 基准：主流开源语言
 
-当前工作目录中的 `.codensity/database-v1.json` 由正式 release CLI 连续生成两次，两次结果均为 24,053 字节，SHA-256 均为 `1e16035c9508d1c6cb4c23bf17747855cc757e9ce093d0c7d73ffedd0be59934`。数据来自 14 个直接克隆的 GitHub 仓库：Linux、FFmpeg，以及 anyhow、clap、rand、rayon、regex、reqwest、serde、serde_json、syn、thiserror、tokio 和 tracing。每个来源都固定到完整 commit SHA，分析输入是该提交的 tracked snapshot，不是发布压缩包或 crates.io 包内容。
+可复核的清单、采集规则和完整结果均在 [`benchmarks/`](benchmarks/)：
+[`oss-manifest.json`](benchmarks/oss-manifest.json) 固定来源，
+[`oss-database.json`](benchmarks/oss-database.json) 是 release CLI 的实际输出。
+下表只列出整个 OSS cohort 中已识别、非空源码合计至少 **64 KiB** 的语言。
+`n` 是该语言有非空源码的项目数；压缩比是各项目该语言压缩字节之和除以原始字节之和的**按字节加权**结果，不是项目比率的平均值。
 
-主要描述性统计如下，四分位数使用 R-7 线性插值：
+| 语言 | n | 源码总量 | 按字节加权压缩比 | 节省率 |
+|---|---:|---:|---:|---:|
+| C | 1 | 9.56 MiB | 0.185095 | 81.49% |
+| C Header | 4 | 1.01 MiB | 0.192790 | 80.72% |
+| C# | 1 | 0.87 MiB | 0.105365 | 89.46% |
+| C++ | 2 | 1.37 MiB | 0.111783 | 88.82% |
+| C++ Header | 1 | 1.12 MiB | 0.077208 | 92.28% |
+| Go | 1 | 0.59 MiB | 0.158183 | 84.18% |
+| Java | 2 | 27.51 MiB | 0.106754 | 89.32% |
+| JavaScript | 5 | 110.75 MiB | 0.038793 | 96.12% |
+| Kotlin | 2 | 3.81 MiB | 0.132878 | 86.71% |
+| Lua | 1 | 11.27 MiB | 0.132105 | 86.79% |
+| Objective-C | 1 | 0.49 MiB | 0.106400 | 89.36% |
+| PHP | 1 | 5.98 MiB | 0.107561 | 89.24% |
+| Python | 5 | 0.59 MiB | 0.224487 | 77.55% |
+| Ruby | 2 | 16.35 MiB | 0.133349 | 86.67% |
+| Shell | 7 | 1.26 MiB | 0.213946 | 78.61% |
+| Swift | 2 | 0.43 MiB | 0.129745 | 87.03% |
+| TSX | 2 | 0.31 MiB | 0.191678 | 80.83% |
+| TypeScript | 2 | 44.36 MiB | 0.098018 | 90.20% |
 
-| 样本组 | n | Q1 | 中位数 | Q3 | 按字节加权 |
-|---|---:|---:|---:|---:|---:|
-| 全部项目 | 14 | 0.114 | 0.130 | 0.156 | 0.101 |
-| Rust 仓库 | 12 | 0.123 | 0.133 | 0.158 | 0.127 |
-| Rust `<512 KiB` | 3 | 0.167 | 0.178 | 0.182 | 0.176 |
-| Rust `512 KiB–<2 MiB` | 4 | 0.123 | 0.142 | 0.156 | 0.135 |
-| Rust `>=2 MiB` | 5 | 0.113 | 0.127 | 0.129 | 0.123 |
-| C | 3 | 0.136 | 0.145 | 0.156 | 0.143 |
-| C Header | 3 | 0.109 | 0.167 | 0.185 | 0.054 |
-| Assembly | 2 | 0.117 | 0.130 | 0.143 | 0.136 |
+JSX 在这批固定快照中没有带 `.jsx` 扩展名的非空文件，因此没有把 JavaScript 的结果伪装成 JSX 结果；其它低于 64 KiB 的语言也同样省略。`n=1` 的行只描述那一个快照，不是语言总体结论；即使达到 64 KiB，框架惯例、代码生成、项目规模与文件布局都会影响结果。详细的零字节、低样本和逐项目结果保留在数据库中。
 
-这些结果只是当前样本与协议下的描述性范围。Linux 会主导“全部项目”和 C Header 的按字节加权统计；C、C Header 和 Assembly 分别只有 3、3、2 个观测，不能据此定义通用语言范围。小语料也会明显受到 zstd 帧头和有限样本效应影响。
+本批项目（链接均为公开 GitHub 仓库，完整 revision 和 archive SHA-256 见清单）：
 
-完整 schema-v1 数据库作为 [`v0.1.0` Release 资产](https://github.com/LIghtJUNction/codensity/releases/download/v0.1.0/database-v1.json) 发布。下载后可用下面的命令核验：
+| 项目 | 固定快照 |
+|---|---|
+| [AFNetworking](https://github.com/AFNetworking/AFNetworking) | `4.0.1` / `ffae2391` |
+| [Catch2](https://github.com/catchorg/Catch2) | `v3.8.1` / `2b60af89` |
+| [gin](https://github.com/gin-gonic/gin) | `v1.11.0` / `6ad6205e` |
+| [Guava](https://github.com/google/guava) | `v33.4.8` / `f06690fa` |
+| [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines) | `1.10.2` / `5f890047` |
+| [Laravel Framework](https://github.com/laravel/framework) | `v12.0.0` / `bd8aeb64` |
+| [Neovim](https://github.com/neovim/neovim) | `v0.11.3` / `b2684d9f` |
+| [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh) | `master-7ea697fd` / `7ea697fd` |
+| [Rails](https://github.com/rails/rails) | `v8.0.2` / `32358275` |
+| [React](https://github.com/facebook/react) | `v19.1.1` / `02ef4958` |
+| [Requests](https://github.com/psf/requests) | `v2.32.5` / `b25c87d7` |
+| [Serilog](https://github.com/serilog/serilog) | `v4.3.0` / `1b461379` |
+| [Swift Algorithms](https://github.com/apple/swift-algorithms) | `1.2.1` / `87e50f48` |
+| [TypeScript](https://github.com/microsoft/TypeScript) | `v5.9.3` / `c63de15a` |
+
+`bminor/bash` 的 GitHub API snapshot 在采集时不可用，因此 Shell 语料采用了明显更小的、同样公开的 Oh My Zsh 固定快照；这不是对 Bash 或任何项目的比较性判断。
+
+## 真实 AI 主导项目样本
+
+[`benchmarks/real-ai-projects/`](benchmarks/real-ai-projects/) 记录三项公开 GitHub
+项目的固定快照、作者自披露证据、archive SHA-256、清单与 release CLI 输出。它
+响应“需要真实反面案例”的需求，但发布名称保持中性、可审计：这只是**作者自披露
+的 AI 主导样本**，不是对任何项目的“垃圾”判定。
+
+| 项目 | 作者自披露（固定 README） | 源码字节 | 压缩比 | 节省率 |
+|---|---|---:|---:|---:|
+| [CodePrism](https://github.com/rustic-ai/codeprism) | [entirely AI-generated](https://github.com/rustic-ai/codeprism/blob/8115b77568c16d1eb0710396da39232b33663fc0/README.md) | 4,164,594 | 0.132440 | 86.76% |
+| [rust-docs-mcp](https://github.com/snowmead/rust-docs-mcp) | [entirely vibe coded](https://github.com/snowmead/rust-docs-mcp/blob/27b26e6b0cf2428cd16f628e86a83fdd01d78154/README.md) | 848,280 | 0.162071 | 83.79% |
+| [ThePantry](https://github.com/tjacoby2006/ThePantry) | [vibe coded/AI slopped](https://github.com/tjacoby2006/ThePantry/blob/b0ef793069524dc0a4b9df37a727b7954f2fc51c/README.md) | 504,014 | 0.210002 | 79.00% |
+| 合计（按字节加权） | 三个作者自披露样本 | 5,516,888 | 0.144082 | 85.59% |
+
+这三条自披露只是入选依据，不能证明任何第三方项目的 AI 来源、质量或安全性；压缩
+率也不是质量、安全性、可维护性或 AI 来源检测器。框架样板、生成代码、格式、语言、
+规模与领域重复都可能改变比率。
+
+## 从仓库根目录重建
+
+下面的命令把 OSS 快照放进唯一的临时目录，不会把 archive 或 source snapshot 写入本仓库；每个下载都由清单中的完整 SHA 固定。命令结束后，两个 `cmp` 都应无输出。
 
 ```bash
-sha256sum database-v1.json
-# 1e16035c9508d1c6cb4c23bf17747855cc757e9ce093d0c7d73ffedd0be59934
+cargo build --release
+codensity_bin="$PWD/target/release/codensity"
+workdir="$(mktemp -d)"
+cp benchmarks/oss-manifest.json "$workdir/oss-manifest.json"
+mkdir "$workdir/sources"
+
+while read -r name repo revision; do
+  archive="$workdir/$name.tar.gz"
+  curl --fail --location --output "$archive" "https://codeload.github.com/$repo/tar.gz/$revision"
+  expected="$(jq -r --arg name "$name" '.projects[] | select(.name == $name).archive_sha256' "$workdir/oss-manifest.json")"
+  printf '%s  %s\n' "$expected" "$archive" | sha256sum --check --status
+  mkdir "$workdir/sources/$name"
+  tar -xzf "$archive" -C "$workdir/sources/$name" --strip-components=1
+done <<'SOURCES'
+afnetworking AFNetworking/AFNetworking ffae2391ab0c29dc88eb0a58d2f5b2c2c27cadbf
+catch2 catchorg/Catch2 2b60af89e23d28eefc081bc930831ee9d45ea58b
+gin gin-gonic/gin 6ad6205e9c94a4b8a320219e28c37c29d22a7a2c
+guava google/guava f06690fa3e874f65515e8fd338a74d636e2c792f
+kotlinx-coroutines Kotlin/kotlinx.coroutines 5f8900478a8e20c073145b1608fbc71fe3d7378b
+laravel-framework laravel/framework bd8aeb64d3f9fa4b11690d702bdf289f5f32ae97
+neovim neovim/neovim b2684d9f6658544d75e2431a06bcf21fe80673f8
+oh-my-zsh ohmyzsh/ohmyzsh 7ea697fd8138550ddf7262456d412f0dcd1cbf84
+rails rails/rails 3235827585d87661942c91bc81f64f56d710f0b2
+react facebook/react 02ef49580922f87180f32618b9d1c70b75b968b7
+requests psf/requests b25c87d7cb8d6a18a37fa12442b5f883f9e41741
+serilog serilog/serilog 1b461379f4e218a939d5c94897df2a1dbbf90573
+swift-algorithms apple/swift-algorithms 87e50f483c54e6efd60e885f7f5aa946cee68023
+typescript microsoft/TypeScript c63de15a992d37f0d6cec03ac7631872838602cb
+SOURCES
+
+(cd "$workdir" && "$codensity_bin" database build oss-manifest.json --output oss-database.json)
+cmp "$workdir/oss-database.json" benchmarks/oss-database.json
+mkdir "$workdir/real-ai"
+cp benchmarks/real-ai-projects/manifest.json "$workdir/real-ai/manifest.json"
+mkdir "$workdir/real-ai/sources"
+
+while read -r name repo revision; do
+  archive="$workdir/real-ai/$name.tar.gz"
+  curl --fail --location --output "$archive" "https://codeload.github.com/$repo/tar.gz/$revision"
+  expected="$(jq -r --arg name "$name" '.projects[] | select(.name == $name).archive_sha256' "$workdir/real-ai/manifest.json")"
+  printf '%s  %s\n' "$expected" "$archive" | sha256sum --check --status
+  mkdir "$workdir/real-ai/sources/$name"
+  tar -xzf "$archive" -C "$workdir/real-ai/sources/$name" --strip-components=1
+done <<'SOURCES'
+codeprism rustic-ai/codeprism 8115b77568c16d1eb0710396da39232b33663fc0
+rust-docs-mcp snowmead/rust-docs-mcp 27b26e6b0cf2428cd16f628e86a83fdd01d78154
+the-pantry tjacoby2006/ThePantry b0ef793069524dc0a4b9df37a727b7954f2fc51c
+SOURCES
+
+(cd "$workdir/real-ai" && "$codensity_bin" database build manifest.json --output database.json)
+cmp "$workdir/real-ai/database.json" benchmarks/real-ai-projects/database.json
+rm -rf "$workdir"
 ```

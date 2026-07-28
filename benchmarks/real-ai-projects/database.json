@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "codensity_version": "0.1.0",
+  "zstd_version": "1.5.7",
+  "protocol": "codensity-zstd19-concat-v1",
+  "projects": [
+    {
+      "name": "codeprism",
+      "version": "2025-08-12-8115b775",
+      "revision": "8115b77568c16d1eb0710396da39232b33663fc0",
+      "source_url": "https://github.com/rustic-ai/codeprism",
+      "archive_sha256": "62a41cbbde6c99e8b5268c8d972785c563260cea399a85e61a9c19e04c1219a9",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "codeprism",
+        "overall": {
+          "file_count": 254,
+          "original_bytes": 4164594,
+          "compressed_bytes": 551557,
+          "ratio": 0.13243956073509205,
+          "savings": 0.8675604392649079,
+          "sha256": "7ce5c832e703612772330b975a40efa934eacd6639323ff8c3a6c6cae2066897"
+        },
+        "languages": [
+          {
+            "language": "Rust",
+            "file_count": 183,
+            "original_bytes": 3687670,
+            "compressed_bytes": 470223,
+            "ratio": 0.12751222316530492,
+            "savings": 0.872487776834695,
+            "sha256": "5d4677b7797d768356674af142d73842cc1ddfbc737fefa105d016bcdb9d4c94"
+          },
+          {
+            "language": "Python",
+            "file_count": 44,
+            "original_bytes": 303892,
+            "compressed_bytes": 51233,
+            "ratio": 0.16858949890092534,
+            "savings": 0.8314105010990747,
+            "sha256": "5d0d32f837a9c472534bf3b58dc55f292570092473a13203c7ccc5fa2b19405a"
+          },
+          {
+            "language": "JavaScript",
+            "file_count": 9,
+            "original_bytes": 31656,
+            "compressed_bytes": 9058,
+            "ratio": 0.28613848875410663,
+            "savings": 0.7138615112458934,
+            "sha256": "ab597c4170f65f236ffbb3ba61c0e8b038c1c1b55ebf62a05dd71b1fd9ad0208"
+          },
+          {
+            "language": "JSX",
+            "file_count": 3,
+            "original_bytes": 47015,
+            "compressed_bytes": 10623,
+            "ratio": 0.2259491651600553,
+            "savings": 0.7740508348399446,
+            "sha256": "f48fb0c8f157a99f0ad98df9443d94eb76af96cde0ce95eea7deb38fc8ab2fc8"
+          },
+          {
+            "language": "TypeScript",
+            "file_count": 3,
+            "original_bytes": 9123,
+            "compressed_bytes": 2974,
+            "ratio": 0.32598925791954403,
+            "savings": 0.674010742080456,
+            "sha256": "69b657feed0a71863f9373990a89dd658c1bca4d20f9160c87b7e9e4634a91e5"
+          },
+          {
+            "language": "TSX",
+            "file_count": 2,
+            "original_bytes": 11232,
+            "compressed_bytes": 3302,
+            "ratio": 0.29398148148148145,
+            "savings": 0.7060185185185186,
+            "sha256": "3ae4dc2865d275a9d459d33b195086253202c6904ebae4befca04518dbc0f53b"
+          },
+          {
+            "language": "Java",
+            "file_count": 8,
+            "original_bytes": 63307,
+            "compressed_bytes": 11964,
+            "ratio": 0.18898384064953322,
+            "savings": 0.8110161593504668,
+            "sha256": "060186441a339fba480ad9e876fc43d00933f83f4928845a85872cd3bdb89c63"
+          },
+          {
+            "language": "Shell",
+            "file_count": 2,
+            "original_bytes": 10699,
+            "compressed_bytes": 2249,
+            "ratio": 0.21020656136087484,
+            "savings": 0.7897934386391252,
+            "sha256": "fca1252bb0970a166afd221af81a409cf6016d803f2c6c69b0e46413e32751a7"
+          }
+        ],
+        "skipped_file_count": 356
+      }
+    },
+    {
+      "name": "rust-docs-mcp",
+      "version": "2026-07-09-27b26e6b",
+      "revision": "27b26e6b0cf2428cd16f628e86a83fdd01d78154",
+      "source_url": "https://github.com/snowmead/rust-docs-mcp",
+      "archive_sha256": "bb5b296168c7b149d493666117ca621a7e65509ebbd76210630ae35b544d6129",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "rust-docs-mcp",
+        "overall": {
+          "file_count": 72,
+          "original_bytes": 848280,
+          "compressed_bytes": 137482,
+          "ratio": 0.16207148583015044,
+          "savings": 0.8379285141698496,
+          "sha256": "da790f9b0a4d9608cbe59903cc16b6a75074941033c6ad340bbfd5d6c09039a6"
+        },
+        "languages": [
+          {
+            "language": "Rust",
+            "file_count": 71,
+            "original_bytes": 838805,
+            "compressed_bytes": 135406,
+            "ratio": 0.16142726855467004,
+            "savings": 0.83857273144533,
+            "sha256": "366c8cc1b0cc40139119a90400b5352127d5c171502ab8a4693ddf974971322a"
+          },
+          {
+            "language": "Shell",
+            "file_count": 1,
+            "original_bytes": 9475,
+            "compressed_bytes": 2752,
+            "ratio": 0.2904485488126649,
+            "savings": 0.7095514511873351,
+            "sha256": "5edad63480a66e2d5fd3b2d3c8d4a5b02d12e4ee2c3300c9af908441e0652560"
+          }
+        ],
+        "skipped_file_count": 32
+      }
+    },
+    {
+      "name": "the-pantry",
+      "version": "2026-03-09-b0ef7930",
+      "revision": "b0ef793069524dc0a4b9df37a727b7954f2fc51c",
+      "source_url": "https://github.com/tjacoby2006/ThePantry",
+      "archive_sha256": "b09951236f483279bf2e914a8ca0375d161fc25a43229510bc8ca88d382bfef4",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "the-pantry",
+        "overall": {
+          "file_count": 42,
+          "original_bytes": 504014,
+          "compressed_bytes": 105844,
+          "ratio": 0.21000210311618328,
+          "savings": 0.7899978968838167,
+          "sha256": "a603c6282eb759fffa953c4f589842acf7436775dba0153a9e7deb4daf1be17f"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 3,
+            "original_bytes": 380742,
+            "compressed_bytes": 93651,
+            "ratio": 0.24596971177332683,
+            "savings": 0.7540302882266732,
+            "sha256": "08a14374e5fb1dbfa65688e2d9d63be929fc8541d67377ad5734eca17cbc32a4"
+          },
+          {
+            "language": "C#",
+            "file_count": 39,
+            "original_bytes": 123272,
+            "compressed_bytes": 12993,
+            "ratio": 0.1054010643130638,
+            "savings": 0.8945989356869362,
+            "sha256": "91e14529f55f1ed1e84026605c86f3e5e54ffa8f1544a4a7e2d7d95c26567489"
+          }
+        ],
+        "skipped_file_count": 50
+      }
+    }
+  ]
+}

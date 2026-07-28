@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">codensity protocol v1：从源码文件到压缩比</title>
+  <desc id="desc">一张暖象牙色研究账册式流程图。四个阶段依次为 SOURCE FILES、CANONICAL STREAM、ZSTD 19、RATIO；说明按相对路径排序原始字节、无路径或分隔符或转码地串接、以独立帧压缩，并报告压缩字节除以原始字节。右侧记录协议 v1、25 个语言映射、14 个 OSS 固定快照和 3 个作者自披露的 AI 样本。</desc>
+  <style>
+    .paper { fill: #f5eedf; }
+    .ink { fill: #202a27; }
+    .muted { fill: #6f756d; }
+    .green { fill: #315f54; }
+    .green-line { stroke: #315f54; }
+    .rule { stroke: #aab3a5; }
+    .display { font-family: Georgia, 'Times New Roman', serif; }
+    .mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+    .caps { font-size: 13px; font-weight: 700; letter-spacing: 2.2px; }
+    .label { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+    .body { font-size: 14px; }
+    .fine { font-size: 12px; letter-spacing: 0.25px; }
+  </style>
+  <rect class="paper" width="1200" height="700"/>
+  <rect x="34" y="30" width="1132" height="640" fill="none" stroke="#315f54" stroke-width="1.5"/>
+  <path d="M58 84H1142M58 624H1142" class="rule" stroke-width="1"/>
+  <text x="62" y="62" class="mono green caps">CODENSITY / REPRODUCIBLE COMPRESSION LEDGER</text>
+  <text x="1138" y="62" text-anchor="end" class="mono muted fine">PROTOCOL PLATE · V1</text>
+
+  <text x="62" y="123" class="display ink" font-size="33" font-weight="700">一个固定协议，得到一个可复核的比率。</text>
+  <text x="62" y="151" class="ink body">路径决定顺序，原始字节决定输入；压缩帧彼此独立，结果才可在同一协议下比较。</text>
+
+  <g transform="translate(62 205)">
+    <rect width="183" height="190" rx="2" fill="#fbf7ef" stroke="#315f54" stroke-width="1.5"/>
+    <text x="18" y="30" class="mono green caps">01</text>
+    <text x="18" y="65" class="mono ink label">SOURCE FILES</text>
+    <path d="M18 83H165" class="rule"/>
+    <text x="18" y="112" class="ink body">识别的普通源码文件</text>
+    <text x="18" y="137" class="ink body">按 POSIX 相对路径</text>
+    <text x="18" y="160" class="green body" font-weight="700">逐字节排序</text>
+  </g>
+  <g fill="none" class="green-line" stroke-width="1.5">
+    <path d="M253 300H291"/>
+    <path d="M283 293L291 300 283 307"/>
+  </g>
+  <g transform="translate(300 205)">
+    <rect width="203" height="190" rx="2" fill="#fbf7ef" stroke="#315f54" stroke-width="1.5"/>
+    <text x="18" y="30" class="mono green caps">02</text>
+    <text x="18" y="65" class="mono ink label">CANONICAL</text>
+    <text x="18" y="86" class="mono ink label">STREAM</text>
+    <path d="M18 103H185" class="rule"/>
+    <text x="18" y="132" class="ink body">串接排序后的原始字节</text>
+    <text x="18" y="155" class="muted fine">无路径 · 无分隔符 · 无转码</text>
+  </g>
+  <g fill="none" class="green-line" stroke-width="1.5">
+    <path d="M511 300H549"/>
+    <path d="M541 293L549 300 541 307"/>
+  </g>
+  <g transform="translate(558 205)">
+    <rect width="166" height="190" rx="2" fill="#315f54" stroke="#315f54" stroke-width="1.5"/>
+    <text x="18" y="30" class="mono" fill="#e5eddf" font-size="13" font-weight="700" letter-spacing="2.2">03</text>
+    <text x="18" y="68" class="mono" fill="#ffffff" font-size="22" font-weight="700" letter-spacing="0.5">ZSTD 19</text>
+    <path d="M18 86H148" stroke="#aac5b8"/>
+    <text x="18" y="118" fill="#ffffff" class="body">固定级别 19</text>
+    <text x="18" y="144" fill="#e5eddf" class="fine">单线程语义</text>
+    <text x="18" y="163" fill="#e5eddf" class="fine">每个流为独立帧</text>
+  </g>
+  <g fill="none" class="green-line" stroke-width="1.5">
+    <path d="M732 300H770"/>
+    <path d="M762 293L770 300 762 307"/>
+  </g>
+  <g transform="translate(779 205)">
+    <rect width="174" height="190" rx="2" fill="#fbf7ef" stroke="#315f54" stroke-width="1.5"/>
+    <text x="18" y="30" class="mono green caps">04</text>
+    <text x="18" y="65" class="mono ink label">RATIO</text>
+    <path d="M18 83H156" class="rule"/>
+    <text x="18" y="116" class="green mono" font-size="16" font-weight="700">compressed</text>
+    <path d="M18 124H143" class="green-line"/>
+    <text x="18" y="143" class="green mono" font-size="16" font-weight="700">original</text>
+    <text x="18" y="168" class="muted fine">压缩字节 / 原始字节</text>
+  </g>
+
+  <g transform="translate(982 205)">
+    <rect width="160" height="190" rx="2" fill="#e9efe5" stroke="#315f54" stroke-width="1.5"/>
+    <text x="16" y="30" class="mono green caps">REGISTER</text>
+    <path d="M16 46H144" class="rule"/>
+    <text x="16" y="72" class="mono ink fine">PROTOCOL</text>
+    <text x="144" y="72" text-anchor="end" class="mono green fine" font-weight="700">V1</text>
+    <text x="16" y="98" class="mono ink fine">MAPPINGS</text>
+    <text x="144" y="98" text-anchor="end" class="mono green fine" font-weight="700">25</text>
+    <text x="16" y="124" class="mono ink fine">OSS SNAPSHOTS</text>
+    <text x="144" y="124" text-anchor="end" class="mono green fine" font-weight="700">14</text>
+    <text x="16" y="150" class="mono ink fine">AI DISCLOSED</text>
+    <text x="144" y="150" text-anchor="end" class="mono green fine" font-weight="700">3</text>
+    <text x="16" y="173" class="muted fine">作者自披露样本</text>
+  </g>
+
+  <g transform="translate(62 456)">
+    <path d="M0 0H1080" class="rule"/>
+    <text x="0" y="32" class="mono green caps">READING THE RESULT</text>
+    <text x="0" y="64" class="display ink" font-size="22" font-weight="700">比率描述可压缩性，不是质量评分。</text>
+    <text x="0" y="94" class="ink body">它受语言、规模、格式、生成代码、框架惯例与重复模式影响；仅适合在相同协议下并列阅读。</text>
+    <path d="M0 123H1080" class="rule"/>
+    <text x="0" y="151" class="mono muted fine">SORTED RAW BYTES → CONCATENATED STREAM → INDEPENDENT ZSTD FRAME → COMPRESSED / ORIGINAL</text>
+  </g>
+  <text x="62" y="649" class="mono muted fine">codensity-zstd19-concat-v1 · deterministic source-code compression analysis</text>
+  <text x="1138" y="649" text-anchor="end" class="mono muted fine">SOURCE DATA LIVES IN THIS REPOSITORY</text>
+</svg>

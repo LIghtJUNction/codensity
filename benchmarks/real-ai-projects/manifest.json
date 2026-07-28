@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {
+      "name": "codeprism",
+      "version": "2025-08-12-8115b775",
+      "revision": "8115b77568c16d1eb0710396da39232b33663fc0",
+      "source_url": "https://github.com/rustic-ai/codeprism",
+      "archive_sha256": "62a41cbbde6c99e8b5268c8d972785c563260cea399a85e61a9c19e04c1219a9",
+      "path": "sources/codeprism"
+    },
+    {
+      "name": "rust-docs-mcp",
+      "version": "2026-07-09-27b26e6b",
+      "revision": "27b26e6b0cf2428cd16f628e86a83fdd01d78154",
+      "source_url": "https://github.com/snowmead/rust-docs-mcp",
+      "archive_sha256": "bb5b296168c7b149d493666117ca621a7e65509ebbd76210630ae35b544d6129",
+      "path": "sources/rust-docs-mcp"
+    },
+    {
+      "name": "the-pantry",
+      "version": "2026-03-09-b0ef7930",
+      "revision": "b0ef793069524dc0a4b9df37a727b7954f2fc51c",
+      "source_url": "https://github.com/tjacoby2006/ThePantry",
+      "archive_sha256": "b09951236f483279bf2e914a8ca0375d161fc25a43229510bc8ca88d382bfef4",
+      "path": "sources/the-pantry"
+    }
+  ]
+}

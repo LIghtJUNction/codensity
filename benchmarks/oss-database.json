@@ -1,0 +1,745 @@
+{
+  "schema_version": 1,
+  "codensity_version": "0.1.0",
+  "zstd_version": "1.5.7",
+  "protocol": "codensity-zstd19-concat-v1",
+  "projects": [
+    {
+      "name": "afnetworking",
+      "version": "4.0.1",
+      "revision": "ffae2391ab0c29dc88eb0a58d2f5b2c2c27cadbf",
+      "source_url": "https://github.com/AFNetworking/AFNetworking",
+      "archive_sha256": "f4e356097d4107f841914eee3bd1332280cf59c998b0d865dd64eb796e271f8a",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "afnetworking",
+        "overall": {
+          "file_count": 84,
+          "original_bytes": 702672,
+          "compressed_bytes": 75285,
+          "ratio": 0.10714102739258147,
+          "savings": 0.8928589726074185,
+          "sha256": "d6f190c67eadec18d3f48c2d4b1156ea6d18b4e64871d2dda79f7d28243948be"
+        },
+        "languages": [
+          {
+            "language": "C Header",
+            "file_count": 31,
+            "original_bytes": 175041,
+            "compressed_bytes": 23093,
+            "ratio": 0.13192909089870372,
+            "savings": 0.8680709091012963,
+            "sha256": "6b93d6192b8bea529060e866bd71af3e9ae9f729635db6b8dcb6023ea8ebb0ed"
+          },
+          {
+            "language": "Swift",
+            "file_count": 4,
+            "original_bytes": 11831,
+            "compressed_bytes": 3107,
+            "ratio": 0.2626151635533767,
+            "savings": 0.7373848364466233,
+            "sha256": "a9d17aa69900e945836e5f0fe5cbe135f8d057093b34bec851bd074d78c8738b"
+          },
+          {
+            "language": "Objective-C",
+            "file_count": 49,
+            "original_bytes": 515800,
+            "compressed_bytes": 54881,
+            "ratio": 0.1063997673516867,
+            "savings": 0.8936002326483133,
+            "sha256": "d78db172b07daf7c897d915c15989f8642edec581b3135a11566558602374ecb"
+          }
+        ],
+        "skipped_file_count": 125
+      }
+    },
+    {
+      "name": "catch2",
+      "version": "v3.8.1",
+      "revision": "2b60af89e23d28eefc081bc930831ee9d45ea58b",
+      "source_url": "https://github.com/catchorg/Catch2",
+      "archive_sha256": "553e6c94498c42edaecc9c8459f1a320a7e4cf49155635cf7123212bb9f09cf2",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "catch2",
+        "overall": {
+          "file_count": 432,
+          "original_bytes": 2676675,
+          "compressed_bytes": 253956,
+          "ratio": 0.09487741320855166,
+          "savings": 0.9051225867914483,
+          "sha256": "dbb06153808a563b50bd3e66d6067dd2a3cad3a981b30a24d5da7caa8425cd0c"
+        },
+        "languages": [
+          {
+            "language": "C Header",
+            "file_count": 1,
+            "original_bytes": 693,
+            "compressed_bytes": 430,
+            "ratio": 0.6204906204906205,
+            "savings": 0.37950937950937946,
+            "sha256": "95f810179ec8604fc6a207e91a7a42e0e4a88cb1c44e4cbcc26cbc10a6cfe546"
+          },
+          {
+            "language": "C++",
+            "file_count": 217,
+            "original_bytes": 1410415,
+            "compressed_bytes": 154367,
+            "ratio": 0.10944792844659196,
+            "savings": 0.8905520715534081,
+            "sha256": "0e6b72ba453b2ebb43b4fdde19ffa62251f0e08b2768de689c13f26c41aff5c1"
+          },
+          {
+            "language": "C++ Header",
+            "file_count": 181,
+            "original_bytes": 1175182,
+            "compressed_bytes": 90734,
+            "ratio": 0.07720846643328437,
+            "savings": 0.9227915335667156,
+            "sha256": "e4394f1034f971bfa06c79a04c8b67213f33f85d78fcc4a4495fce1425865c88"
+          },
+          {
+            "language": "Python",
+            "file_count": 31,
+            "original_bytes": 89241,
+            "compressed_bytes": 21197,
+            "ratio": 0.23752535269663047,
+            "savings": 0.7624746473033696,
+            "sha256": "ef67348cd382b44f0522ab12601118c4d0b86396f662688341571e7a4700204d"
+          },
+          {
+            "language": "Shell",
+            "file_count": 2,
+            "original_bytes": 1144,
+            "compressed_bytes": 658,
+            "ratio": 0.5751748251748252,
+            "savings": 0.4248251748251748,
+            "sha256": "8f100dfa038213bb1da3a396ac67acff866be847ed1cb1d9d89a4ee5ce226301"
+          }
+        ],
+        "skipped_file_count": 125
+      }
+    },
+    {
+      "name": "gin",
+      "version": "v1.11.0",
+      "revision": "6ad6205e9c94a4b8a320219e28c37c29d22a7a2c",
+      "source_url": "https://github.com/gin-gonic/gin",
+      "archive_sha256": "c96267cb1b79db586c5509364c5501a2273fdbe7299fe7e43cf28409decd8254",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "gin",
+        "overall": {
+          "file_count": 95,
+          "original_bytes": 617353,
+          "compressed_bytes": 97655,
+          "ratio": 0.15818340560424912,
+          "savings": 0.8418165943957509,
+          "sha256": "7fe29370c56c3dd3a5d6c0d50c6060d796341fa5a16ee5b20685675092c712ba"
+        },
+        "languages": [
+          {
+            "language": "Go",
+            "file_count": 95,
+            "original_bytes": 617353,
+            "compressed_bytes": 97655,
+            "ratio": 0.15818340560424912,
+            "savings": 0.8418165943957509,
+            "sha256": "7fe29370c56c3dd3a5d6c0d50c6060d796341fa5a16ee5b20685675092c712ba"
+          }
+        ],
+        "skipped_file_count": 29
+      }
+    },
+    {
+      "name": "guava",
+      "version": "v33.4.8",
+      "revision": "f06690fa3e874f65515e8fd338a74d636e2c792f",
+      "source_url": "https://github.com/google/guava",
+      "archive_sha256": "fde9c6ee398be281ff4f12d7341d56179874b2588a7dcbfe7c30469c58abc961",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "guava",
+        "overall": {
+          "file_count": 3275,
+          "original_bytes": 28819954,
+          "compressed_bytes": 3076570,
+          "ratio": 0.10675138482178008,
+          "savings": 0.89324861517822,
+          "sha256": "5fbf1f62ad2aea5ee2a03aabf7143db05c9e5e423acfcdc02b22b982086adeb5"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 2,
+            "original_bytes": 600,
+            "compressed_bytes": 256,
+            "ratio": 0.4266666666666667,
+            "savings": 0.5733333333333333,
+            "sha256": "8abb268aec5d93549a242dd932435afc9784242a3d9e8c1e430501fd613edba2"
+          },
+          {
+            "language": "Java",
+            "file_count": 3267,
+            "original_bytes": 28808555,
+            "compressed_bytes": 3073869,
+            "ratio": 0.10669986745256747,
+            "savings": 0.8933001325474326,
+            "sha256": "e7eb43f9040cc131fd161a664a6e7b1ff16380e2b1bb09d3252fe2baa6582b4d"
+          },
+          {
+            "language": "Kotlin",
+            "file_count": 2,
+            "original_bytes": 7847,
+            "compressed_bytes": 1970,
+            "ratio": 0.2510513572065758,
+            "savings": 0.7489486427934242,
+            "sha256": "ad2931069db4dcd279cda4060ccf2e8409c4552b109af7b50416944789086421"
+          },
+          {
+            "language": "Shell",
+            "file_count": 4,
+            "original_bytes": 2952,
+            "compressed_bytes": 1397,
+            "ratio": 0.47323848238482386,
+            "savings": 0.5267615176151761,
+            "sha256": "0f4f3725ff3a8a091d0d319ae8a41868ab45d9edff273094dc4e65bd019cb53a"
+          }
+        ],
+        "skipped_file_count": 81
+      }
+    },
+    {
+      "name": "kotlinx-coroutines",
+      "version": "1.10.2",
+      "revision": "5f8900478a8e20c073145b1608fbc71fe3d7378b",
+      "source_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "archive_sha256": "f5b28eca6aa3a4fdc389bbdda66f9de124b477822f62879e0b2f7df5030e3e6f",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "kotlinx-coroutines",
+        "overall": {
+          "file_count": 1097,
+          "original_bytes": 4032049,
+          "compressed_bytes": 535870,
+          "ratio": 0.1329026507366354,
+          "savings": 0.8670973492633646,
+          "sha256": "b2ae14a6caba880dd5896c0a39712bea3f6d0b2ffb83cc3c7f6949ce024a97de"
+        },
+        "languages": [
+          {
+            "language": "Python",
+            "file_count": 1,
+            "original_bytes": 3107,
+            "compressed_bytes": 1331,
+            "ratio": 0.4283875120695204,
+            "savings": 0.5716124879304796,
+            "sha256": "2d333e67f94b009c51dbda976653db346cf1e9205b415a5004eaea84cf5ff6cf"
+          },
+          {
+            "language": "Java",
+            "file_count": 20,
+            "original_bytes": 34841,
+            "compressed_bytes": 5275,
+            "ratio": 0.1514020837519015,
+            "savings": 0.8485979162480985,
+            "sha256": "ebff0e60b4d706afb46fd86d5cf9be67c9795c27645d555c3e2836a222840ddc"
+          },
+          {
+            "language": "Kotlin",
+            "file_count": 1075,
+            "original_bytes": 3991416,
+            "compressed_bytes": 529443,
+            "ratio": 0.13264540704351538,
+            "savings": 0.8673545929564846,
+            "sha256": "023c6bbd6bd0a4344389fa46938520dcb70d7e82f4745e909954fb863b3c4135"
+          },
+          {
+            "language": "Shell",
+            "file_count": 1,
+            "original_bytes": 2685,
+            "compressed_bytes": 1104,
+            "ratio": 0.4111731843575419,
+            "savings": 0.5888268156424581,
+            "sha256": "618f9cf772334eae66514039112930a19d659fb73a454098458ce9ab4c4a545f"
+          }
+        ],
+        "skipped_file_count": 216
+      }
+    },
+    {
+      "name": "laravel-framework",
+      "version": "v12.0.0",
+      "revision": "bd8aeb64d3f9fa4b11690d702bdf289f5f32ae97",
+      "source_url": "https://github.com/laravel/framework",
+      "archive_sha256": "15c8ce3805275a1f3bd52610a50678eb9bd0d0a930a62278570b267dc781ad9f",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "laravel-framework",
+        "overall": {
+          "file_count": 1430,
+          "original_bytes": 6267846,
+          "compressed_bytes": 674682,
+          "ratio": 0.10764176401270867,
+          "savings": 0.8923582359872914,
+          "sha256": "e2b5e5ea58e8b0f98d4994dbf0543d39a6f8565f46de6e226c4ce973df4a3004"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 4,
+            "original_bytes": 1422,
+            "compressed_bytes": 642,
+            "ratio": 0.45147679324894513,
+            "savings": 0.5485232067510548,
+            "sha256": "69b75f53b51cb12ea1d0e8fcf1ce3e4e1501473a44d985d311b4d72e5bb38dd4"
+          },
+          {
+            "language": "PHP",
+            "file_count": 1426,
+            "original_bytes": 6266424,
+            "compressed_bytes": 674023,
+            "ratio": 0.10756102683125177,
+            "savings": 0.8924389731687482,
+            "sha256": "312b57b970153f77b6745fd2826c4682d97a26de07e4410ccc979efc29d009db"
+          }
+        ],
+        "skipped_file_count": 163
+      }
+    },
+    {
+      "name": "neovim",
+      "version": "v0.11.3",
+      "revision": "b2684d9f6658544d75e2431a06bcf21fe80673f8",
+      "source_url": "https://github.com/neovim/neovim",
+      "archive_sha256": "9dbf2a0f44397c480cac4d381b0d5b6ee40a81654df841372ff7c09fd57b5670",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "neovim",
+        "overall": {
+          "file_count": 1226,
+          "original_bytes": 22844762,
+          "compressed_bytes": 3623528,
+          "ratio": 0.15861526594148803,
+          "savings": 0.841384734058512,
+          "sha256": "faa0a2c605927fdc4715d782f3bb2feb892b976db3e7ae94f6fda86cab800333"
+        },
+        "languages": [
+          {
+            "language": "C",
+            "file_count": 209,
+            "original_bytes": 10026430,
+            "compressed_bytes": 1855845,
+            "ratio": 0.18509529314023038,
+            "savings": 0.8149047068597697,
+            "sha256": "aa767f39ff0ed18deb3f5689ea93f0fe255f8f2a14758a5c9b97a355df275ff1"
+          },
+          {
+            "language": "C Header",
+            "file_count": 280,
+            "original_bytes": 850337,
+            "compressed_bytes": 172901,
+            "ratio": 0.2033323258896179,
+            "savings": 0.7966676741103821,
+            "sha256": "6cd7fe29149449d8b7d76d98afbc69b7ba31290dd2063de4c723b076651c1388"
+          },
+          {
+            "language": "Python",
+            "file_count": 9,
+            "original_bytes": 103048,
+            "compressed_bytes": 26506,
+            "ratio": 0.25721993634034623,
+            "savings": 0.7427800636596538,
+            "sha256": "daa9ae94a9efcab94babf2f441e1edcd9e22d3f145073fd07b19f4ea079fcda9"
+          },
+          {
+            "language": "Ruby",
+            "file_count": 1,
+            "original_bytes": 182,
+            "compressed_bytes": 143,
+            "ratio": 0.7857142857142857,
+            "savings": 0.2142857142857143,
+            "sha256": "fe8a8a90ef583f125107b0d277eff5b968a7be13f024c4cda2d3d91bce009734"
+          },
+          {
+            "language": "Shell",
+            "file_count": 11,
+            "original_bytes": 47783,
+            "compressed_bytes": 14217,
+            "ratio": 0.29753259527447,
+            "savings": 0.7024674047255299,
+            "sha256": "d5bd66478fee0ea27bff4ff6a0bf10db79d49a4c52a0a8afe2dab68a2e9c9d25"
+          },
+          {
+            "language": "Lua",
+            "file_count": 716,
+            "original_bytes": 11816982,
+            "compressed_bytes": 1561086,
+            "ratio": 0.13210530404463677,
+            "savings": 0.8678946959553633,
+            "sha256": "07b883598f4babe41c962561df9e056bc979d073ca7b8f8fefddabcda6d45a6a"
+          }
+        ],
+        "skipped_file_count": 2340
+      }
+    },
+    {
+      "name": "oh-my-zsh",
+      "version": "master-7ea697fd",
+      "revision": "7ea697fd8138550ddf7262456d412f0dcd1cbf84",
+      "source_url": "https://github.com/ohmyzsh/ohmyzsh",
+      "archive_sha256": "9abbd44e9524ee4d1f43f202b91dffa34151212d54fd13b9fa779bfc75f4e881",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "oh-my-zsh",
+        "overall": {
+          "file_count": 378,
+          "original_bytes": 1306735,
+          "compressed_bytes": 274858,
+          "ratio": 0.21033951030622122,
+          "savings": 0.7896604896937788,
+          "sha256": "54ba8dafd61d3f9036ad83dd381f862e962e5e7baf958a428246488734813080"
+        },
+        "languages": [
+          {
+            "language": "Python",
+            "file_count": 8,
+            "original_bytes": 44462,
+            "compressed_bytes": 12892,
+            "ratio": 0.28995546759030183,
+            "savings": 0.7100445324096982,
+            "sha256": "0bcc8cb2b125f2e9eeae5b77a37dc12a9179201fb73c45471fa4958c4bee22c1"
+          },
+          {
+            "language": "Shell",
+            "file_count": 370,
+            "original_bytes": 1262273,
+            "compressed_bytes": 263873,
+            "ratio": 0.20904590369912054,
+            "savings": 0.7909540963008794,
+            "sha256": "074d102221bf9bc027abf8e6b418df7f6b21067a9d69198584e2911f826512e3"
+          }
+        ],
+        "skipped_file_count": 706
+      }
+    },
+    {
+      "name": "rails",
+      "version": "v8.0.2",
+      "revision": "3235827585d87661942c91bc81f64f56d710f0b2",
+      "source_url": "https://github.com/rails/rails",
+      "archive_sha256": "bfa2d425e15e94f2f8d2f2d8674aa12c51bfc7b4f7b7a245c8a30395413c172f",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "rails",
+        "overall": {
+          "file_count": 3322,
+          "original_bytes": 18330992,
+          "compressed_bytes": 2467719,
+          "ratio": 0.13462004674924302,
+          "savings": 0.865379953250757,
+          "sha256": "495f9cbc8e09561da697572cc4a2856fab5b16ac13f71163fe27deb8bb53e9ad"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 69,
+            "original_bytes": 1189214,
+            "compressed_bytes": 175198,
+            "ratio": 0.14732251722566334,
+            "savings": 0.8526774827743366,
+            "sha256": "899693f7b5cce560dd6ce9adec144cabb0646534e6edebec6ebade4fbc97e83c"
+          },
+          {
+            "language": "Ruby",
+            "file_count": 3252,
+            "original_bytes": 17141542,
+            "compressed_bytes": 2285683,
+            "ratio": 0.13334173786699002,
+            "savings": 0.86665826213301,
+            "sha256": "be6b3a4f6e15a56b01691c6896830c6d0931b2d8108fe02c1514d9e88ee063e4"
+          },
+          {
+            "language": "Shell",
+            "file_count": 1,
+            "original_bytes": 236,
+            "compressed_bytes": 163,
+            "ratio": 0.690677966101695,
+            "savings": 0.30932203389830504,
+            "sha256": "224483003c45329faf2ff98ead9f4ae1cc0e3d3bf9c38687f0ad1e3aedf468d6"
+          }
+        ],
+        "skipped_file_count": 1432
+      }
+    },
+    {
+      "name": "react",
+      "version": "v19.1.1",
+      "revision": "02ef49580922f87180f32618b9d1c70b75b968b7",
+      "source_url": "https://github.com/facebook/react",
+      "archive_sha256": "9bfe6c07fde98048df7a03be9de788dbf17211875e4ca348a1a7b684691d5b25",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "react",
+        "overall": {
+          "file_count": 3982,
+          "original_bytes": 18779283,
+          "compressed_bytes": 2101362,
+          "ratio": 0.11189788236324039,
+          "savings": 0.8881021176367596,
+          "sha256": "f376fdf5a6acc12d2354a7f89b9f7bd9df377b1c0c95a8137cbbf6c58f4dd418"
+        },
+        "languages": [
+          {
+            "language": "C Header",
+            "file_count": 3,
+            "original_bytes": 28232,
+            "compressed_bytes": 6835,
+            "ratio": 0.24210116180221025,
+            "savings": 0.7578988381977898,
+            "sha256": "a63236d8a9bb50acb27dfbdb11b875175dde14f772277947542f9f47a25f8a5f"
+          },
+          {
+            "language": "C++",
+            "file_count": 4,
+            "original_bytes": 21285,
+            "compressed_bytes": 5673,
+            "ratio": 0.2665257223396758,
+            "savings": 0.7334742776603242,
+            "sha256": "7634420a3d1e6964238954e86c9ed09f969b1eba41950cb22ab4791196670f42"
+          },
+          {
+            "language": "JavaScript",
+            "file_count": 3488,
+            "original_bytes": 16834020,
+            "compressed_bytes": 1802624,
+            "ratio": 0.10708220615159064,
+            "savings": 0.8929177938484094,
+            "sha256": "70fa7206d3e95f680c8eecc874d17d753bb7fff65f47e6dd1440f69e81180307"
+          },
+          {
+            "language": "JSX",
+            "file_count": 9,
+            "original_bytes": 3867,
+            "compressed_bytes": 1372,
+            "ratio": 0.3547970002585984,
+            "savings": 0.6452029997414016,
+            "sha256": "2144cd61bbc52e1c09327606fc0d368acd45ef1ffa04249b8b6fa6d5c1c35107"
+          },
+          {
+            "language": "TypeScript",
+            "file_count": 369,
+            "original_bytes": 1785463,
+            "compressed_bytes": 285968,
+            "ratio": 0.16016461836509632,
+            "savings": 0.8398353816349037,
+            "sha256": "b57a0e8adbe6e9f13c3c5e5182c37c4856eee78f4778dca9930d44da70e25a31"
+          },
+          {
+            "language": "TSX",
+            "file_count": 98,
+            "original_bytes": 101584,
+            "compressed_bytes": 24835,
+            "ratio": 0.24447747676799497,
+            "savings": 0.7555225232320051,
+            "sha256": "45583c21d251046eea3299643c78b44f412e6cd4d2f387cd28502be5c0757e5d"
+          },
+          {
+            "language": "Shell",
+            "file_count": 11,
+            "original_bytes": 4832,
+            "compressed_bytes": 1404,
+            "ratio": 0.2905629139072848,
+            "savings": 0.7094370860927153,
+            "sha256": "aeb65c5ef64a567e799de6dd96ac179df47ecc1b908e8c2720b10fcc37ffb9de"
+          }
+        ],
+        "skipped_file_count": 2209
+      }
+    },
+    {
+      "name": "requests",
+      "version": "v2.32.5",
+      "revision": "b25c87d7cb8d6a18a37fa12442b5f883f9e41741",
+      "source_url": "https://github.com/psf/requests",
+      "archive_sha256": "f43c1e132868abb6a7002ec4a4232b86610bf55c2deba17ef7b53cdc39794eae",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "requests",
+        "overall": {
+          "file_count": 36,
+          "original_bytes": 377442,
+          "compressed_bytes": 76650,
+          "ratio": 0.2030775589362074,
+          "savings": 0.7969224410637926,
+          "sha256": "be1e2851a856bd45cb3181e5ee137d76816fe6484a040ba104dc2106e781102e"
+        },
+        "languages": [
+          {
+            "language": "Python",
+            "file_count": 36,
+            "original_bytes": 377442,
+            "compressed_bytes": 76650,
+            "ratio": 0.2030775589362074,
+            "savings": 0.7969224410637926,
+            "sha256": "be1e2851a856bd45cb3181e5ee137d76816fe6484a040ba104dc2106e781102e"
+          }
+        ],
+        "skipped_file_count": 94
+      }
+    },
+    {
+      "name": "serilog",
+      "version": "v4.3.0",
+      "revision": "1b461379f4e218a939d5c94897df2a1dbbf90573",
+      "source_url": "https://github.com/serilog/serilog",
+      "archive_sha256": "c6e521a7d85da25d920e2a95ba7c35d19cfe2057d30d1c4f6f8867aaf669b42b",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "serilog",
+        "overall": {
+          "file_count": 214,
+          "original_bytes": 912647,
+          "compressed_bytes": 96161,
+          "ratio": 0.10536494394875565,
+          "savings": 0.8946350560512444,
+          "sha256": "e38aeae27bd7510b5edf5b241bda944dc6781fed2ceebabbe7be134d39a72c6c"
+        },
+        "languages": [
+          {
+            "language": "C#",
+            "file_count": 214,
+            "original_bytes": 912647,
+            "compressed_bytes": 96161,
+            "ratio": 0.10536494394875565,
+            "savings": 0.8946350560512444,
+            "sha256": "e38aeae27bd7510b5edf5b241bda944dc6781fed2ceebabbe7be134d39a72c6c"
+          }
+        ],
+        "skipped_file_count": 68
+      }
+    },
+    {
+      "name": "swift-algorithms",
+      "version": "1.2.1",
+      "revision": "87e50f483c54e6efd60e885f7f5aa946cee68023",
+      "source_url": "https://github.com/apple/swift-algorithms",
+      "archive_sha256": "57f7faed9c572b7517bac082eed28f48653d49e0b86e1cdd239602a09112e8fe",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "swift-algorithms",
+        "overall": {
+          "file_count": 55,
+          "original_bytes": 435039,
+          "compressed_bytes": 54872,
+          "ratio": 0.12613122041931873,
+          "savings": 0.8738687795806812,
+          "sha256": "94d057c1203bfc0eaa4353d90e043bfbf2367444facf9a657da20430640baae3"
+        },
+        "languages": [
+          {
+            "language": "Swift",
+            "file_count": 55,
+            "original_bytes": 435039,
+            "compressed_bytes": 54872,
+            "ratio": 0.12613122041931873,
+            "savings": 0.8738687795806812,
+            "sha256": "94d057c1203bfc0eaa4353d90e043bfbf2367444facf9a657da20430640baae3"
+          }
+        ],
+        "skipped_file_count": 64
+      }
+    },
+    {
+      "name": "typescript",
+      "version": "v5.9.3",
+      "revision": "c63de15a992d37f0d6cec03ac7631872838602cb",
+      "source_url": "https://github.com/microsoft/TypeScript",
+      "archive_sha256": "bfce164d0d86da62a2b79c2585a7e0fc08ff8d15ce9c87748a756de4960531e8",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "typescript",
+        "overall": {
+          "file_count": 38017,
+          "original_bytes": 143059923,
+          "compressed_bytes": 6770707,
+          "ratio": 0.047327769077577374,
+          "savings": 0.9526722309224226,
+          "sha256": "50bf68450e40cfda8eb9a0553e335df8924d4bc9234496df1d451f60608cecb2"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 16994,
+            "original_bytes": 98107608,
+            "compressed_bytes": 2526448,
+            "ratio": 0.02575180509955966,
+            "savings": 0.9742481949004403,
+            "sha256": "33e3f422b7b691b8a70ef4d73afeb7b7ef7583620526898ab02046ce5d846b72"
+          },
+          {
+            "language": "TypeScript",
+            "file_count": 20692,
+            "original_bytes": 44731441,
+            "compressed_bytes": 4273546,
+            "ratio": 0.09553785669457865,
+            "savings": 0.9044621433054214,
+            "sha256": "b2a1b6ebb9bc20f888a6ecb7d0d3ea7926e9874c08178b537ac1d16752e3dd80"
+          },
+          {
+            "language": "TSX",
+            "file_count": 331,
+            "original_bytes": 220874,
+            "compressed_bytes": 36973,
+            "ratio": 0.16739407988264804,
+            "savings": 0.8326059201173519,
+            "sha256": "1f3cc94da196e4f2c1fca7849f7161ff0192473979d65a689ffef5a3e90a32d6"
+          }
+        ],
+        "skipped_file_count": 36280
+      }
+    }
+  ]
+}
