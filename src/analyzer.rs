@@ -6,10 +6,13 @@ use ignore::WalkBuilder;
 use sha2::{Digest, Sha256};
 
 use crate::error::{CodensityError, Result};
+use crate::function::extract_rust_functions;
 use crate::language::{LANGUAGES, language_for_path};
 use crate::model::{
-    ANALYSIS_SCHEMA_VERSION, AnalysisResult, LEDGER_SCHEMA_VERSION, LanguageResult, MetricResult,
-    PROTOCOL_ID, RELATION_PROTOCOL_ID, RELATION_SCHEMA_VERSION, RelationFileResult, RelationResult,
+    ANALYSIS_SCHEMA_VERSION, AnalysisResult, FileResult, GRANULAR_ANALYSIS_PROTOCOL_ID,
+    GranularAnalysisResult, LEDGER_SCHEMA_VERSION, LanguageResult, MetricResult, PROTOCOL_ID,
+    RELATION_PROTOCOL_ID, RELATION_SCHEMA_VERSION, RUST_FUNCTION_PROTOCOL_ID, RelationFileResult,
+    RelationResult,
 };
 use crate::profile::build_profile;
 use crate::{CODENSITY_VERSION, zstd_version};
@@ -93,6 +96,62 @@ pub fn analyze_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
 /// ledgers remain byte-for-byte reproducible.
 pub fn analyze_ledger_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
     analyze(path, input_label, false)
+}
+
+/// Produces whole-repository, file-level, and optionally parser-backed function metrics.
+pub fn analyze_granular_path(
+    path: &Path,
+    input_label: &str,
+    include_files: bool,
+    include_functions: bool,
+) -> Result<GranularAnalysisResult> {
+    let repository = analyze_path(path, input_label)?;
+    let sources = include_files
+        .then(|| scan(path).map(|(sources, _)| sources))
+        .transpose()?;
+    let files = sources
+        .as_deref()
+        .unwrap_or_default()
+        .iter()
+        .map(|source| {
+            Ok(FileResult {
+                path: source.relative.clone(),
+                language: LANGUAGES[source.language_index].name.to_owned(),
+                metric: stream_metric(path, std::slice::from_ref(source), None)?,
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+    let functions = if include_functions {
+        extract_rust_functions(sources.as_deref().unwrap_or_default())?
+            .into_iter()
+            .map(|function| function.result)
+            .collect()
+    } else {
+        Vec::new()
+    };
+    let unsupported_function_languages = if include_functions {
+        {
+            repository
+                .languages
+                .iter()
+                .filter(|language| language.language != "Rust")
+                .map(|language| language.language.clone())
+                .collect()
+        }
+    } else {
+        Vec::new()
+    };
+
+    Ok(GranularAnalysisResult {
+        schema_version: 1,
+        protocol: GRANULAR_ANALYSIS_PROTOCOL_ID.to_owned(),
+        repository,
+        files,
+        functions,
+        function_protocol: include_functions.then(|| RUST_FUNCTION_PROTOCOL_ID.to_owned()),
+        unsupported_function_languages,
+        interpretation: "File metrics independently compress each recognized source file. Function metrics are parser-backed Rust source spans; small samples are high-variance. Neither layer establishes code quality, semantic equivalence, architecture, or authorship.".to_owned(),
+    })
 }
 
 /// Measures cross-stream regularity for exactly two included source files.
@@ -268,7 +327,7 @@ fn analyze(path: &Path, input_label: &str, include_profile: bool) -> Result<Anal
     })
 }
 
-fn scan(root: &Path) -> Result<(Vec<SourceFile>, u64)> {
+pub(crate) fn scan(root: &Path) -> Result<(Vec<SourceFile>, u64)> {
     let mut builder = WalkBuilder::new(root);
     builder
         .hidden(false)
@@ -347,7 +406,7 @@ fn normalized_relative(root: &Path, path: &Path, input_is_file: bool) -> Result<
     Ok(normalized)
 }
 
-fn stream_metric(
+pub(crate) fn stream_metric(
     root: &Path,
     files: &[SourceFile],
     language_index: Option<usize>,
@@ -407,6 +466,31 @@ fn stream_metric(
         compressed_bytes,
         ratio,
         savings,
+        sha256: format!("{:x}", hasher.finalize()),
+    })
+}
+
+/// Measures one already-selected byte stream with the frozen zstd-19 settings.
+pub(crate) fn metric_for_bytes(bytes: &[u8], root: &Path) -> Result<MetricResult> {
+    let counter = CountingWriter::default();
+    let mut encoder = zstd::stream::write::Encoder::new(counter, ZSTD_LEVEL)
+        .map_err(CodensityError::Compression)?;
+    let mut hasher = Sha256::new();
+    hasher.update(bytes);
+    encoder
+        .write_all(bytes)
+        .map_err(CodensityError::Compression)?;
+    let compressed_bytes = encoder.finish().map_err(CodensityError::Compression)?.bytes;
+    let original_bytes = u64::try_from(bytes.len())
+        .map_err(|_| CodensityError::CounterOverflow(root.to_path_buf()))?;
+    let ratio = (original_bytes != 0).then_some(compressed_bytes as f64 / original_bytes as f64);
+
+    Ok(MetricResult {
+        file_count: 1,
+        original_bytes,
+        compressed_bytes,
+        ratio,
+        savings: ratio.map(|value| 1.0 - value),
         sha256: format!("{:x}", hasher.finalize()),
     })
 }

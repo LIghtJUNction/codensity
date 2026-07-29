@@ -14,6 +14,20 @@ pub const PROFILE_PROTOCOL_ID: &str = "codensity-information-profile-v2";
 pub const RELATION_SCHEMA_VERSION: u32 = 1;
 /// Stable identifier for the two-file cross-stream relation rules.
 pub const RELATION_PROTOCOL_ID: &str = "codensity-cross-stream-relation-v1";
+/// Schema version for repository URL analysis envelopes.
+pub const REPOSITORY_ANALYSIS_SCHEMA_VERSION: u32 = 1;
+/// Stable identifier for immutable GitHub snapshot analysis.
+pub const REPOSITORY_ANALYSIS_PROTOCOL_ID: &str = "codensity-github-snapshot-v1";
+/// Stable identifier for repository/file/function analysis envelopes.
+pub const GRANULAR_ANALYSIS_PROTOCOL_ID: &str = "codensity-granular-analysis-v1";
+/// Schema version for repository cross-stream comparison results.
+pub const REPOSITORY_COMPARISON_SCHEMA_VERSION: u32 = 1;
+/// Stable identifier for repository cross-stream comparison.
+pub const REPOSITORY_COMPARISON_PROTOCOL_ID: &str = "codensity-repository-cross-stream-v1";
+/// Stable identifier for parser-backed Rust function extraction.
+pub const RUST_FUNCTION_PROTOCOL_ID: &str = "codensity-rust-function-ast-v1";
+/// Small function samples have high fixed-frame variance below this many bytes.
+pub const FUNCTION_SMALL_SAMPLE_BYTES: u64 = 512;
 
 /// Metrics for one concatenated byte stream.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -276,9 +290,143 @@ pub struct RelationResult {
     pub raw_cross_stream_gain_bytes: i64,
     /// Raw gain less the one-frame baseline advantage.
     pub adjusted_cross_stream_gain_bytes: i64,
-    /// Adjusted gain divided by independent compressed payload bytes, when positive.
+    /// Adjusted gain divided by independent compressed payload bytes, when non-zero.
     pub adjusted_cross_stream_gain_ratio: Option<f64>,
     /// Interpretation boundary for this non-structural signal.
+    pub interpretation: String,
+}
+
+/// Immutable provenance for a downloaded GitHub repository snapshot.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RepositoryProvenance {
+    /// Canonical public GitHub repository URL.
+    pub repository_url: String,
+    /// Resolved immutable Git commit SHA.
+    pub commit: String,
+    /// SHA-256 of the exact downloaded GitHub archive bytes.
+    pub archive_sha256: String,
+}
+
+/// One independently compressed recognized source file.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileResult {
+    /// Normalized root-relative POSIX path.
+    pub path: String,
+    /// Canonical language name from the protocol table.
+    pub language: String,
+    /// Independent zstd-19 stream metric.
+    #[serde(flatten)]
+    pub metric: MetricResult,
+}
+
+/// One parser-backed Rust function, method, trait method, or closure.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FunctionResult {
+    /// Normalized root-relative POSIX source path.
+    pub path: String,
+    /// Stable parser-derived kind: `function`, `method`, `trait_method`, or `closure`.
+    pub kind: String,
+    /// Function identifier, or a location-derived closure identifier.
+    pub symbol: String,
+    /// One-based first source line covered by the parsed node.
+    pub start_line: u32,
+    /// One-based final source line covered by the parsed node.
+    pub end_line: u32,
+    /// Whether the independent sample is below the fixed-frame variance threshold.
+    pub small_sample: bool,
+    /// Independent zstd-19 stream metric for the exact parsed source span.
+    #[serde(flatten)]
+    pub metric: MetricResult,
+}
+
+/// A complete repository/file/function analysis envelope.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct GranularAnalysisResult {
+    /// Granular-result schema version.
+    pub schema_version: u32,
+    /// Granular-result protocol identifier.
+    pub protocol: String,
+    /// Whole-repository analysis under the existing analysis protocol.
+    pub repository: AnalysisResult,
+    /// Independently measured recognized source files in canonical path order.
+    pub files: Vec<FileResult>,
+    /// Parser-backed Rust functions in canonical path and source order.
+    pub functions: Vec<FunctionResult>,
+    /// Function extraction protocol when parser-backed functions were requested.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function_protocol: Option<String>,
+    /// Languages present in the repository without function parser support.
+    pub unsupported_function_languages: Vec<String>,
+    /// Boundary for file/function metrics.
+    pub interpretation: String,
+}
+
+/// Analysis of an immutable GitHub repository snapshot.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RepositoryAnalysisResult {
+    /// Repository-result schema version.
+    pub schema_version: u32,
+    /// Repository-result protocol identifier.
+    pub protocol: String,
+    /// Immutable GitHub provenance for the analyzed source tree.
+    pub provenance: RepositoryProvenance,
+    /// Whole-repository, file, and optional function measurements.
+    pub analysis: GranularAnalysisResult,
+    /// Boundary for this immutable snapshot result.
+    pub interpretation: String,
+}
+
+/// One function-pair compression similarity signal.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FunctionSimilarityResult {
+    /// Function from the first canonical repository.
+    pub first: FunctionResult,
+    /// Function from the second canonical repository.
+    pub second: FunctionResult,
+    /// Metric for exact concatenation of first then second parsed spans.
+    pub combined: MetricResult,
+    /// `C(first) + C(second) - C(combined)`, including one removed frame.
+    pub raw_cross_stream_gain_bytes: i64,
+    /// Raw gain less one empty zstd-frame baseline advantage.
+    pub adjusted_cross_stream_gain_bytes: i64,
+    /// Adjusted gain divided by independent compressed payload bytes, when non-zero.
+    pub adjusted_cross_stream_gain_ratio: Option<f64>,
+    /// Whether either function is below the fixed-frame variance threshold.
+    pub high_variance: bool,
+}
+
+/// Deterministic comparison of two immutable repository source streams.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RepositoryComparisonResult {
+    /// Comparison schema version.
+    pub schema_version: u32,
+    /// Comparison protocol identifier.
+    pub protocol: String,
+    /// First repository after canonical provenance sorting.
+    pub first: RepositoryProvenance,
+    /// Second repository after canonical provenance sorting.
+    pub second: RepositoryProvenance,
+    /// Whole-repository analysis for the first repository.
+    pub first_analysis: AnalysisResult,
+    /// Whole-repository analysis for the second repository.
+    pub second_analysis: AnalysisResult,
+    /// Metric for canonical concatenation of both repository source streams.
+    pub combined: MetricResult,
+    /// Byte size of one empty zstd frame under the pinned implementation.
+    pub empty_frame_bytes: u64,
+    /// `C(first) + C(second) - C(combined)`, including one removed frame.
+    pub raw_cross_stream_gain_bytes: i64,
+    /// Raw gain less one empty zstd-frame baseline advantage.
+    pub adjusted_cross_stream_gain_bytes: i64,
+    /// Adjusted gain divided by independent compressed payload bytes, when non-zero.
+    pub adjusted_cross_stream_gain_ratio: Option<f64>,
+    /// Parser-backed Rust function-pair candidates, when requested.
+    pub function_similarities: Vec<FunctionSimilarityResult>,
+    /// Maximum emitted parser-backed function-pair candidates.
+    pub function_candidate_limit: u64,
+    /// Whether deterministic candidate enumeration exceeded the emitted limit.
+    pub function_similarity_truncated: bool,
+    /// Boundary for this byte-level similarity signal.
     pub interpretation: String,
 }
 
@@ -292,7 +440,7 @@ pub struct Manifest {
     pub projects: Vec<ManifestProject>,
 }
 
-/// One local project declaration in a manifest.
+/// One local or remotely acquired project declaration in a manifest.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ManifestProject {
@@ -306,8 +454,12 @@ pub struct ManifestProject {
     pub source_url: String,
     /// Optional SHA-256 for the source archive.
     pub archive_sha256: Option<String>,
-    /// Local extraction directory, omitted from database output.
-    pub path: std::path::PathBuf,
+    /// Optional local extraction directory, omitted from database output.
+    ///
+    /// When absent (or when the configured directory is unavailable),
+    /// `source_url`, `revision`, and `archive_sha256` define an immutable
+    /// public GitHub snapshot downloaded by `database build`.
+    pub path: Option<std::path::PathBuf>,
 }
 
 /// Stable schema-v1 database.
@@ -486,4 +638,114 @@ pub fn render_relation(result: &RelationResult) -> String {
             .map_or_else(|| "null".to_owned(), |value| format!("{value:.6}")),
         result.interpretation,
     )
+}
+
+/// Renders repository, file, and optional function metrics as deterministic text.
+#[must_use]
+pub fn render_granular_analysis(result: &GranularAnalysisResult) -> String {
+    let mut output = render_text(&result.repository);
+    output.push_str(&format!("granular_protocol: {}\nfiles:\n", result.protocol));
+    for file in &result.files {
+        output.push_str(&format!(
+            "  {}: {} original={} compressed={} ratio={} sha256={}\n",
+            file.path,
+            file.language,
+            file.metric.original_bytes,
+            file.metric.compressed_bytes,
+            format_optional_ratio(file.metric.ratio),
+            file.metric.sha256,
+        ));
+    }
+    if let Some(protocol) = &result.function_protocol {
+        output.push_str(&format!("function_protocol: {protocol}\n"));
+    }
+    output.push_str("functions:\n");
+    for function in &result.functions {
+        output.push_str(&format!(
+            "  {}:{}-{} {} {} original={} compressed={} ratio={} small_sample={} sha256={}\n",
+            function.path,
+            function.start_line,
+            function.end_line,
+            function.kind,
+            function.symbol,
+            function.metric.original_bytes,
+            function.metric.compressed_bytes,
+            format_optional_ratio(function.metric.ratio),
+            function.small_sample,
+            function.metric.sha256,
+        ));
+    }
+    if !result.unsupported_function_languages.is_empty() {
+        output.push_str(&format!(
+            "unsupported_function_languages: {}\n",
+            result.unsupported_function_languages.join(",")
+        ));
+    }
+    output.push_str(&format!("interpretation: {}\n", result.interpretation));
+    output
+}
+
+/// Renders one immutable GitHub snapshot analysis as deterministic text.
+#[must_use]
+pub fn render_repository_analysis(result: &RepositoryAnalysisResult) -> String {
+    let mut output = format!(
+        "schema: {}\nprotocol: {}\nrepository_url: {}\ncommit: {}\narchive_sha256: {}\n",
+        result.schema_version,
+        result.protocol,
+        result.provenance.repository_url,
+        result.provenance.commit,
+        result.provenance.archive_sha256,
+    );
+    output.push_str(&render_granular_analysis(&result.analysis));
+    output.push_str(&format!(
+        "snapshot_interpretation: {}\n",
+        result.interpretation
+    ));
+    output
+}
+
+/// Renders an immutable repository comparison as deterministic text.
+#[must_use]
+pub fn render_repository_comparison(result: &RepositoryComparisonResult) -> String {
+    let mut output = format!(
+        "schema: {}\nprotocol: {}\nfirst: {}@{} archive_sha256={}\nsecond: {}@{} archive_sha256={}\nfirst_compressed: {}\nsecond_compressed: {}\ncombined: {}\nempty_frame: {}\nraw_cross_stream_gain: {}\nadjusted_cross_stream_gain: {}\nadjusted_cross_stream_gain_ratio: {}\nfunction_candidate_limit: {}\nfunction_similarity_truncated: {}\nfunction_similarities:\n",
+        result.schema_version,
+        result.protocol,
+        result.first.repository_url,
+        result.first.commit,
+        result.first.archive_sha256,
+        result.second.repository_url,
+        result.second.commit,
+        result.second.archive_sha256,
+        result.first_analysis.overall.compressed_bytes,
+        result.second_analysis.overall.compressed_bytes,
+        result.combined.compressed_bytes,
+        result.empty_frame_bytes,
+        result.raw_cross_stream_gain_bytes,
+        result.adjusted_cross_stream_gain_bytes,
+        format_optional_ratio(result.adjusted_cross_stream_gain_ratio),
+        result.function_candidate_limit,
+        result.function_similarity_truncated,
+    );
+    for similarity in &result.function_similarities {
+        output.push_str(&format!(
+            "  {}:{}:{} <-> {}:{}:{} combined={} adjusted_gain={} ratio={} high_variance={}\n",
+            similarity.first.path,
+            similarity.first.start_line,
+            similarity.first.symbol,
+            similarity.second.path,
+            similarity.second.start_line,
+            similarity.second.symbol,
+            similarity.combined.compressed_bytes,
+            similarity.adjusted_cross_stream_gain_bytes,
+            format_optional_ratio(similarity.adjusted_cross_stream_gain_ratio),
+            similarity.high_variance,
+        ));
+    }
+    output.push_str(&format!("interpretation: {}\n", result.interpretation));
+    output
+}
+
+fn format_optional_ratio(value: Option<f64>) -> String {
+    value.map_or_else(|| "null".to_owned(), |value| format!("{value:.6}"))
 }

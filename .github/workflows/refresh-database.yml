@@ -1,0 +1,37 @@
+name: Refresh benchmark database
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: benchmark-database-release
+  cancel-in-progress: false
+
+jobs:
+  rebuild-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rebuild pinned benchmark database
+        run: >-
+          cargo run --release --locked -- database build
+          benchmarks/oss-manifest.json --output benchmarks/oss-database.json
+      - name: Publish verified database asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="database-v1-$(date -u +%F)"
+          asset="benchmarks/oss-database.json#database-v1.json"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$asset" --clobber
+          else
+            gh release create "$tag" "$asset" \
+              --title "Codensity database v1 $(date -u +%F)" \
+              --notes "Pinned source snapshots were reacquired, archive digests verified, and database-v1.json rebuilt by the scheduled workflow."
+          fi

@@ -7,6 +7,142 @@ pub enum CodensityError {
     #[error("input path does not exist: {0}")]
     InputNotFound(PathBuf),
 
+    /// A remote input is not a supported public GitHub repository URL.
+    #[error("unsupported GitHub repository URL: {0}")]
+    UnsupportedRepositoryUrl(String),
+
+    /// GitHub repository metadata or an archive could not be requested.
+    #[error("failed to request GitHub repository resource `{url}`: {source}")]
+    RepositoryRequest {
+        /// Requested HTTPS URL.
+        url: String,
+        /// Underlying HTTP failure.
+        source: ureq::Error,
+    },
+
+    /// A GitHub repository response body could not be read.
+    #[error("failed to read GitHub repository resource `{url}`: {source}")]
+    RepositoryResponse {
+        /// Requested HTTPS URL.
+        url: String,
+        /// Underlying stream failure.
+        source: std::io::Error,
+    },
+
+    /// A repository archive exceeded the fixed safety limit.
+    #[error("GitHub repository archive exceeds the {maximum_bytes}-byte safety limit: {url}")]
+    RepositoryArchiveTooLarge {
+        /// Requested archive URL.
+        url: String,
+        /// Maximum permitted archive size.
+        maximum_bytes: u64,
+    },
+
+    /// A Git smart-protocol advertisement exceeded the fixed safety limit.
+    #[error("GitHub Git advertisement exceeds the {maximum_bytes}-byte safety limit: {url}")]
+    RepositoryAdvertisementTooLarge {
+        /// Requested advertisement URL.
+        url: String,
+        /// Maximum permitted size.
+        maximum_bytes: u64,
+    },
+
+    /// A Git smart-protocol advertisement did not use valid pkt-line framing.
+    #[error("invalid Git upload-pack advertisement `{url}`: {reason}")]
+    RepositoryAdvertisementMalformed {
+        /// Requested advertisement URL.
+        url: String,
+        /// Deterministic parsing reason.
+        reason: String,
+    },
+
+    /// A public GitHub commit page exceeded the fixed fallback safety limit.
+    #[error("GitHub commit page exceeds the {maximum_bytes}-byte safety limit: {url}")]
+    RepositoryCommitPageTooLarge {
+        /// Requested commit-page URL.
+        url: String,
+        /// Maximum permitted size.
+        maximum_bytes: u64,
+    },
+
+    /// A public GitHub commit page did not contain one unambiguous immutable commit marker.
+    #[error("GitHub commit page could not resolve an immutable commit `{url}`: {reason}")]
+    RepositoryCommitPageUnresolved {
+        /// Requested commit-page URL.
+        url: String,
+        /// Deterministic extraction reason.
+        reason: String,
+    },
+
+    /// A requested branch, tag, or default branch was absent from the advertisement.
+    #[error("GitHub repository revision `{revision}` was not advertised by `{repository_url}`")]
+    RepositoryRevisionNotFound {
+        /// Canonical repository URL.
+        repository_url: String,
+        /// Requested revision, or HEAD for the default branch.
+        revision: String,
+    },
+
+    /// A temporary repository directory could not be prepared.
+    #[error("failed to prepare temporary repository directory `{path}`: {source}")]
+    RepositoryTemporaryDirectory {
+        /// Temporary directory path.
+        path: PathBuf,
+        /// Underlying filesystem failure.
+        source: std::io::Error,
+    },
+
+    /// A GitHub archive could not be decoded or safely extracted.
+    #[error("failed to extract GitHub repository archive `{url}`: {source}")]
+    RepositoryArchive {
+        /// Requested archive URL.
+        url: String,
+        /// Underlying archive or filesystem failure.
+        source: std::io::Error,
+    },
+
+    /// A GitHub archive contained a path or entry type outside the safe format.
+    #[error("GitHub repository archive contains an unsafe entry: {0}")]
+    RepositoryArchiveUnsafeEntry(PathBuf),
+
+    /// A GitHub archive did not expose its resolved commit in the top-level directory.
+    #[error("GitHub repository archive did not expose a resolvable commit: {0}")]
+    RepositoryArchiveCommitMissing(String),
+
+    /// A full commit URL did not match the commit encoded by the downloaded archive.
+    #[error("GitHub repository archive resolved commit `{found}` but expected `{expected}")]
+    RepositoryArchiveCommitMismatch {
+        /// Commit requested in the input URL.
+        expected: String,
+        /// Commit encoded by the downloaded archive.
+        found: String,
+    },
+
+    /// A Rust source file could not be decoded for parser-backed function analysis.
+    #[error("Rust function analysis requires UTF-8 source `{path}`: {source}")]
+    FunctionSourceUtf8 {
+        /// Source file path.
+        path: PathBuf,
+        /// Underlying UTF-8 failure.
+        source: std::string::FromUtf8Error,
+    },
+
+    /// A Rust source file could not be parsed for function analysis.
+    #[error("failed to parse Rust source for function analysis `{path}`: {source}")]
+    FunctionParse {
+        /// Source file path.
+        path: PathBuf,
+        /// Underlying Rust parser failure.
+        source: syn::Error,
+    },
+
+    /// A parser span could not be represented as a source-byte range.
+    #[error("failed to map parser span to source bytes in `{path}`")]
+    FunctionSpan {
+        /// Source file path.
+        path: PathBuf,
+    },
+
     /// A relation root is not a directory.
     #[error("relation root is not a directory: {0}")]
     RelationRootNotDirectory(PathBuf),
@@ -122,6 +258,27 @@ pub enum CodensityError {
     InvalidArchiveSha256 {
         /// Zero-based project index.
         index: usize,
+    },
+
+    /// A remotely acquired manifest project needs an immutable revision.
+    #[error("remote manifest project {index} requires a full 40-hex `revision`")]
+    RemoteProjectRevisionRequired {
+        /// Zero-based project index.
+        index: usize,
+    },
+
+    /// A remotely acquired manifest project needs an archive digest.
+    #[error("remote manifest project {index} requires `archive_sha256`")]
+    RemoteProjectArchiveDigestRequired {
+        /// Zero-based project index.
+        index: usize,
+    },
+
+    /// A downloaded remote manifest archive did not match its pinned digest.
+    #[error("remote manifest project `{project}` archive SHA-256 did not match its pinned value")]
+    RemoteProjectArchiveDigestMismatch {
+        /// Stable manifest project name.
+        project: String,
     },
 
     /// Two manifest projects share the same identity.

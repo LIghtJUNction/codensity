@@ -160,6 +160,27 @@
       "source_url": "https://github.com/CocoaLumberjack/CocoaLumberjack",
       "archive_sha256": "28f40b5235057e7761b2abde9bb2a8ab5a2ae053075f03ed423dd62e537cae57",
       "path": "sources/cocoalumberjack"
+    },
+    {
+      "name": "clap",
+      "version": "v4.6.4",
+      "revision": "466b2be56c5811d1af62c407f5a00456350ece62",
+      "source_url": "https://github.com/clap-rs/clap",
+      "archive_sha256": "344c378b854250f7a78e09930e97bb3c25e6fc29432d0f9ed004f934feeb6c5f"
+    },
+    {
+      "name": "ripgrep",
+      "version": "15.2.0",
+      "revision": "e89fff89ac9af12e8d4ce9d5fd07beb408ca730f",
+      "source_url": "https://github.com/BurntSushi/ripgrep",
+      "archive_sha256": "af40d0f4cb7a55994906c009a7ba865047f0d487c95bceb8db59ffc4f2173d20"
+    },
+    {
+      "name": "serde",
+      "version": "v1.0.229",
+      "revision": "7fc3b4c30c94f73a96ebd1553f2b090d928fc3a8",
+      "source_url": "https://github.com/serde-rs/serde",
+      "archive_sha256": "bf75f83a1020f0d37a70221b96bd7571fdf3ec7f24838bd739704d2870629108"
     }
   ]
 }

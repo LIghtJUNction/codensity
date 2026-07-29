@@ -209,7 +209,7 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "codensity"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "brotli",
@@ -217,9 +217,12 @@ dependencies = [
  "flate2",
  "ignore",
  "lzma-rust2",
+ "proc-macro2",
  "serde",
  "serde_json",
  "sha2 0.10.9",
+ "syn",
+ "tar",
  "thiserror",
  "ureq",
  "zstd",
@@ -327,6 +330,16 @@ dependencies = [
  "block-buffer 0.12.1",
  "const-oid",
  "crypto-common 0.2.2",
+]
+
+[[package]]
+name = "filetime"
+version = "0.2.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c287a33c7f0a620c38e641e7f60827713987b3c0f26e8ddc9462cc69cf75759"
+dependencies = [
+ "cfg-if",
+ "libc",
 ]
 
 [[package]]
@@ -717,6 +730,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "tar"
+version = "0.4.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f6221d9a6003c78398e3b239969f352578258df48c8eb051caadae0015bc840"
+dependencies = [
+ "filetime",
+ "libc",
 ]
 
 [[package]]

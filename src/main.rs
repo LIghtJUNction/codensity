@@ -3,8 +3,10 @@ use std::path::PathBuf;
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
 use codensity::{
-    analyze_ledger_path, analyze_path, build_database, initialize_project, relate_paths,
-    render_relation, render_text, safe_input_label, update_database,
+    analyze_github_repository, analyze_granular_path, analyze_ledger_path, analyze_path,
+    build_database, compare_github_repositories, initialize_project, relate_paths,
+    render_granular_analysis, render_relation, render_repository_analysis,
+    render_repository_comparison, render_text, safe_input_label, update_database,
 };
 
 #[derive(Debug, Parser)]
@@ -27,15 +29,18 @@ enum Command {
     },
     /// Analyze a source tree.
     Analyze {
-        /// Source path to analyze.
+        /// Local source path or a public GitHub repository URL.
         #[arg(default_value = "src")]
-        path: PathBuf,
+        input: String,
         /// Output representation.
         #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
         format: OutputFormat,
         /// Run only the frozen single-zstd schema-v1 ledger.
         #[arg(long)]
         ledger_only: bool,
+        /// Result detail level for local paths and GitHub repository URLs.
+        #[arg(long, value_enum, default_value_t = Granularity::Repository)]
+        granularity: Granularity,
     },
     /// Measure shared byte-level patterns between two source files.
     Relation {
@@ -46,6 +51,19 @@ enum Command {
         first: PathBuf,
         /// Second root-relative source path.
         second: PathBuf,
+        /// Output representation.
+        #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
+        format: OutputFormat,
+    },
+    /// Compare two public GitHub repositories by byte-level source regularity.
+    Compare {
+        /// First public GitHub repository URL.
+        first: String,
+        /// Second public GitHub repository URL.
+        second: String,
+        /// Include parser-backed Rust function-pair candidates.
+        #[arg(long, value_enum, default_value_t = Granularity::Repository)]
+        granularity: Granularity,
         /// Output representation.
         #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
         format: OutputFormat,
@@ -84,6 +102,13 @@ enum OutputFormat {
     Json,
 }
 
+#[derive(Clone, Copy, Debug, ValueEnum)]
+enum Granularity {
+    Repository,
+    File,
+    Function,
+}
+
 fn main() -> Result<()> {
     run(Cli::parse().command)
 }
@@ -98,19 +123,54 @@ fn run(command: Command) -> Result<()> {
             );
         }
         Command::Analyze {
-            path,
+            input,
             format,
             ledger_only,
+            granularity,
         } => {
+            if input.starts_with("https://github.com/") {
+                if ledger_only {
+                    anyhow::bail!("--ledger-only is only available for local source paths");
+                }
+                let result = analyze_github_repository(
+                    &input,
+                    !matches!(granularity, Granularity::Repository),
+                    matches!(granularity, Granularity::Function),
+                )?;
+                match format {
+                    OutputFormat::Text => print!("{}", render_repository_analysis(&result)),
+                    OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
+                }
+                return Ok(());
+            }
+            let path = PathBuf::from(input);
             let label = safe_input_label(&path)?;
-            let result = if ledger_only {
-                analyze_ledger_path(&path, &label)?
+            if matches!(granularity, Granularity::Repository) {
+                let result = if ledger_only {
+                    analyze_ledger_path(&path, &label)?
+                } else {
+                    analyze_path(&path, &label)?
+                };
+                match format {
+                    OutputFormat::Text => print!("{}", render_text(&result)),
+                    OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
+                }
             } else {
-                analyze_path(&path, &label)?
-            };
-            match format {
-                OutputFormat::Text => print!("{}", render_text(&result)),
-                OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
+                if ledger_only {
+                    anyhow::bail!(
+                        "--ledger-only cannot be combined with --granularity file or function"
+                    );
+                }
+                let result = analyze_granular_path(
+                    &path,
+                    &label,
+                    true,
+                    matches!(granularity, Granularity::Function),
+                )?;
+                match format {
+                    OutputFormat::Text => print!("{}", render_granular_analysis(&result)),
+                    OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
+                }
             }
         }
         Command::Relation {
@@ -122,6 +182,27 @@ fn run(command: Command) -> Result<()> {
             let result = relate_paths(&root, &first, &second)?;
             match format {
                 OutputFormat::Text => print!("{}", render_relation(&result)),
+                OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
+            }
+        }
+        Command::Compare {
+            first,
+            second,
+            granularity,
+            format,
+        } => {
+            if matches!(granularity, Granularity::File) {
+                anyhow::bail!(
+                    "compare --granularity file is not available; use analyze <repository-url> --granularity file"
+                );
+            }
+            let result = compare_github_repositories(
+                &first,
+                &second,
+                matches!(granularity, Granularity::Function),
+            )?;
+            match format {
+                OutputFormat::Text => print!("{}", render_repository_comparison(&result)),
                 OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
             }
         }
@@ -144,7 +225,7 @@ fn run(command: Command) -> Result<()> {
 mod tests {
     use clap::Parser;
 
-    use super::{Cli, Command, OutputFormat};
+    use super::{Cli, Command, Granularity, OutputFormat};
 
     #[test]
     fn relation_command_parses_root_paths_and_json_format() {
@@ -173,5 +254,42 @@ mod tests {
             }
             _ => panic!("expected relation command"),
         }
+    }
+
+    #[test]
+    fn github_commands_parse_granularity_without_local_path_coercion() {
+        let analyze = Cli::try_parse_from([
+            "codensity",
+            "analyze",
+            "https://github.com/BurntSushi/ripgrep",
+            "--granularity",
+            "function",
+        ])
+        .expect("parse GitHub analyze command");
+        let compare = Cli::try_parse_from([
+            "codensity",
+            "compare",
+            "https://github.com/BurntSushi/ripgrep",
+            "https://github.com/serde-rs/serde",
+            "--granularity",
+            "function",
+        ])
+        .expect("parse GitHub compare command");
+
+        assert!(matches!(
+            analyze.command,
+            Command::Analyze {
+                input,
+                granularity: Granularity::Function,
+                ..
+            } if input == "https://github.com/BurntSushi/ripgrep"
+        ));
+        assert!(matches!(
+            compare.command,
+            Command::Compare {
+                granularity: Granularity::Function,
+                ..
+            }
+        ));
     }
 }

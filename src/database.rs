@@ -9,6 +9,7 @@ use crate::error::{CodensityError, Result};
 use crate::model::{
     DATABASE_SCHEMA_VERSION, Database, DatabaseProject, Manifest, ManifestProject, PROTOCOL_ID,
 };
+use crate::repository::{GithubSnapshot, fetch_github_snapshot};
 use crate::{CODENSITY_VERSION, zstd_version};
 use serde::Serialize;
 
@@ -17,7 +18,21 @@ const MANAGED_IGNORE_CONTENTS: &[u8] = b"*\n!.gitignore\n";
 
 struct PreparedProject {
     project: ManifestProject,
-    canonical_root: PathBuf,
+    root: PreparedRoot,
+}
+
+enum PreparedRoot {
+    Local(PathBuf),
+    Remote(GithubSnapshot),
+}
+
+impl PreparedProject {
+    fn root(&self) -> &Path {
+        match &self.root {
+            PreparedRoot::Local(path) => path,
+            PreparedRoot::Remote(snapshot) => snapshot.root(),
+        }
+    }
 }
 
 struct TempOutput {
@@ -72,7 +87,7 @@ pub fn build_database(manifest_path: &Path, output_path: &Path) -> Result<Databa
 
     let mut projects = Vec::with_capacity(prepared_projects.len());
     for prepared in prepared_projects {
-        let analysis = analyze_ledger_path(&prepared.canonical_root, &prepared.project.name)?;
+        let analysis = analyze_ledger_path(prepared.root(), &prepared.project.name)?;
         projects.push(database_project(prepared.project, analysis));
     }
 
@@ -88,21 +103,41 @@ pub fn build_database(manifest_path: &Path, output_path: &Path) -> Result<Databa
 }
 
 fn prepare_projects(projects: Vec<ManifestProject>) -> Result<Vec<PreparedProject>> {
-    projects
-        .into_iter()
-        .map(|project| {
-            let canonical_root = fs::canonicalize(&project.path).map_err(|source| {
-                CodensityError::ProjectCanonicalize {
-                    path: project.path.clone(),
-                    source,
+    let mut prepared = Vec::with_capacity(projects.len());
+    for project in projects {
+        let root = match &project.path {
+            Some(path) if path.exists() => {
+                PreparedRoot::Local(fs::canonicalize(path).map_err(|source| {
+                    CodensityError::ProjectCanonicalize {
+                        path: path.clone(),
+                        source,
+                    }
+                })?)
+            }
+            Some(_) | None => {
+                let revision = project
+                    .revision
+                    .as_deref()
+                    .expect("validated remote manifest revision");
+                let snapshot = fetch_github_snapshot(&format!(
+                    "{}/commit/{revision}",
+                    project.source_url.trim_end_matches('/')
+                ))?;
+                let expected_digest = project
+                    .archive_sha256
+                    .as_deref()
+                    .expect("validated remote manifest archive digest");
+                if snapshot.archive_sha256 != expected_digest.to_ascii_lowercase() {
+                    return Err(CodensityError::RemoteProjectArchiveDigestMismatch {
+                        project: project.name.clone(),
+                    });
                 }
-            })?;
-            Ok(PreparedProject {
-                project,
-                canonical_root,
-            })
-        })
-        .collect()
+                PreparedRoot::Remote(snapshot)
+            }
+        };
+        prepared.push(PreparedProject { project, root });
+    }
+    Ok(prepared)
 }
 
 fn prepare_output_path(path: &Path, projects: &[PreparedProject]) -> Result<PathBuf> {
@@ -125,7 +160,7 @@ fn prepare_output_path(path: &Path, projects: &[PreparedProject]) -> Result<Path
     };
     let managed_projects = validate_resolved_output(&resolved, projects)?;
     for index in managed_projects {
-        ensure_managed_directory(&projects[index].canonical_root)?;
+        ensure_managed_directory(projects[index].root())?;
     }
     Ok(resolved)
 }
@@ -151,7 +186,7 @@ fn prepare_missing_managed_parent(
     let owner_projects: Vec<_> = projects
         .iter()
         .enumerate()
-        .filter_map(|(index, project)| (project.canonical_root == canonical_owner).then_some(index))
+        .filter_map(|(index, project)| (project.root() == canonical_owner).then_some(index))
         .collect();
     if owner_projects.is_empty() {
         return Err(CodensityError::OutputParentCanonicalize {
@@ -163,7 +198,7 @@ fn prepare_missing_managed_parent(
     let candidate = canonical_owner.join(".codensity").join(filename);
     validate_resolved_output(&candidate, projects)?;
     for index in owner_projects {
-        ensure_managed_directory(&projects[index].canonical_root)?;
+        ensure_managed_directory(projects[index].root())?;
     }
     let canonical_parent =
         fs::canonicalize(parent).map_err(|source| CodensityError::OutputParentCanonicalize {
@@ -180,7 +215,7 @@ fn validate_resolved_output(
 ) -> Result<BTreeSet<usize>> {
     let mut managed_projects = BTreeSet::new();
     for (index, project) in projects.iter().enumerate() {
-        if let Ok(relative) = resolved.strip_prefix(&project.canonical_root) {
+        if let Ok(relative) = resolved.strip_prefix(project.root()) {
             require_managed_output(relative, resolved, &project.project.name)?;
             managed_projects.insert(index);
         }
@@ -371,13 +406,22 @@ fn validate_manifest(manifest: &Manifest) -> Result<()> {
         {
             return Err(CodensityError::InvalidArchiveSha256 { index });
         }
-        if !project.path.exists() {
-            return Err(CodensityError::InputNotFound(project.path.clone()));
-        }
-        if !project.path.is_dir() {
-            return Err(CodensityError::ProjectPathNotDirectory(
-                project.path.clone(),
-            ));
+        match &project.path {
+            Some(path) if !path.exists() && !is_github_repository_url(&project.source_url) => {
+                return Err(CodensityError::InputNotFound(path.clone()));
+            }
+            Some(path) if path.exists() && !path.is_dir() => {
+                return Err(CodensityError::ProjectPathNotDirectory(path.clone()));
+            }
+            Some(path) if path.exists() => {}
+            Some(_) | None => {
+                if !project.revision.as_deref().is_some_and(is_commit_sha) {
+                    return Err(CodensityError::RemoteProjectRevisionRequired { index });
+                }
+                if project.archive_sha256.is_none() {
+                    return Err(CodensityError::RemoteProjectArchiveDigestRequired { index });
+                }
+            }
         }
         if !identities.insert((&project.name, &project.version)) {
             return Err(CodensityError::DuplicateProject {
@@ -387,6 +431,21 @@ fn validate_manifest(manifest: &Manifest) -> Result<()> {
         }
     }
     Ok(())
+}
+
+fn is_github_repository_url(value: &str) -> bool {
+    value
+        .strip_prefix("https://github.com/")
+        .is_some_and(|path| {
+            path.split('/')
+                .filter(|segment| !segment.is_empty())
+                .count()
+                == 2
+        })
+}
+
+fn is_commit_sha(value: &str) -> bool {
+    value.len() == 40 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 fn validate_nonempty(index: usize, field: &'static str, value: &str) -> Result<()> {

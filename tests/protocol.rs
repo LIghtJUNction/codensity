@@ -5,8 +5,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::{Context, Result};
 use codensity::{
-    CodensityError, LANGUAGES, PROTOCOL_ID, RELATION_PROTOCOL_ID, analyze_path, build_database,
-    initialize_project, language_for_path, relate_paths, render_text,
+    CodensityError, LANGUAGES, PROTOCOL_ID, RELATION_PROTOCOL_ID, analyze_granular_path,
+    analyze_path, build_database, initialize_project, language_for_path, load_manifest,
+    relate_paths, render_text,
 };
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -529,6 +530,110 @@ fn relation_should_have_a_stable_json_schema_and_cli_output() -> Result<()> {
         ]
         .into_iter()
         .collect()
+    );
+    Ok(())
+}
+
+#[test]
+fn granular_analysis_should_measure_files_and_parser_backed_rust_functions() -> Result<()> {
+    let fixture = Fixture::new("granular")?;
+    fixture.write(
+        "src/main.rs",
+        b"fn outer() { let closure = |n: u8| n + 1; let _ = closure(1); }\nimpl Thing { fn method() {} }\n",
+    )?;
+    fixture.write("src/helper.py", b"def helper():\n    return 1\n")?;
+
+    let result = analyze_granular_path(&fixture.path, "fixture", true, true)?;
+    let value = serde_json::to_value(&result)?;
+
+    assert!(
+        result.files.len() == 2
+            && result
+                .functions
+                .iter()
+                .any(|function| function.symbol == "outer")
+            && result
+                .functions
+                .iter()
+                .any(|function| function.symbol == "method")
+            && result
+                .functions
+                .iter()
+                .any(|function| function.kind == "closure")
+            && result.unsupported_function_languages == ["Python"]
+            && value["functions"][0]["sha256"].is_string()
+            && value["files"][0]["compressed_bytes"].is_number()
+    );
+    Ok(())
+}
+
+#[test]
+fn remote_database_manifest_should_require_pinned_revision_and_archive_digest() -> Result<()> {
+    let fixture = Fixture::new("remote-manifest")?;
+    let manifest_path = fixture.path.join("manifest.json");
+    fs::write(
+        &manifest_path,
+        serde_json::to_vec_pretty(&json!({
+            "schema_version": 1,
+            "projects": [{
+                "name": "remote",
+                "version": "1",
+                "source_url": "https://github.com/BurntSushi/ripgrep"
+            }]
+        }))?,
+    )?;
+    let error = load_manifest(&manifest_path).context("expected remote provenance error");
+
+    assert!(matches!(
+        error,
+        Err(source) if matches!(
+            source.downcast_ref::<CodensityError>(),
+            Some(CodensityError::RemoteProjectRevisionRequired { .. })
+        )
+    ));
+    Ok(())
+}
+
+#[test]
+fn github_manifest_can_fall_back_to_a_pinned_remote_snapshot_when_cache_is_missing() -> Result<()> {
+    let fixture = Fixture::new("remote-manifest-cache-fallback")?;
+    let manifest_path = fixture.path.join("manifest.json");
+    fs::write(
+        &manifest_path,
+        serde_json::to_vec_pretty(&json!({
+            "schema_version": 1,
+            "projects": [{
+                "name": "remote",
+                "version": "1",
+                "revision": "0123456789abcdef0123456789abcdef01234567",
+                "source_url": "https://github.com/example/remote",
+                "archive_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+                "path": fixture.path.join("missing-cache")
+            }]
+        }))?,
+    )?;
+
+    let manifest = load_manifest(&manifest_path)?;
+    assert_eq!(manifest.projects.len(), 1);
+    Ok(())
+}
+
+#[test]
+fn compare_should_reject_file_granularity_without_contacting_a_repository() -> Result<()> {
+    let output = Command::new(env!("CARGO_BIN_EXE_codensity"))
+        .args([
+            "compare",
+            "https://github.com/example/first",
+            "https://github.com/example/second",
+            "--granularity",
+            "file",
+        ])
+        .output()?;
+
+    assert!(
+        !output.status.success()
+            && String::from_utf8_lossy(&output.stderr)
+                .contains("compare --granularity file is not available")
     );
     Ok(())
 }

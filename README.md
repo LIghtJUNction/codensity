@@ -11,10 +11,10 @@
 [![zstd level 19](https://img.shields.io/badge/zstd-level%2019-315f54?style=flat-square)](#压缩账本-v1)
 [![4 compressors](https://img.shields.io/badge/compressors-4-315f54?style=flat-square)](#信息画像-v2)
 [![25 language mappings](https://img.shields.io/badge/language%20mappings-25-315f54?style=flat-square)](#基准主流开源语言)
-[![20 OSS snapshots](https://img.shields.io/badge/OSS%20fixed%20snapshots-20-315f54?style=flat-square)](#基准主流开源语言)
+[![23 OSS snapshots](https://img.shields.io/badge/OSS%20fixed%20snapshots-23-315f54?style=flat-square)](#基准主流开源语言)
 [![5 author self-disclosed AI samples](https://img.shields.io/badge/AI%20self--disclosed%20samples-5-315f54?style=flat-square)](#真实-ai-主导项目样本)
 
-[`分析`](#分析源码) · [`两文件关系`](#两文件关系信号) · [`画像`](#信息画像-v2) · [`协议`](#压缩账本-v1) · [`OSS 基准`](#基准主流开源语言) · [`重建`](#从仓库根目录重建)
+[`分析`](#分析源码) · [`仓库与函数`](#仓库与函数级分析) · [`两文件关系`](#两文件关系信号) · [`画像`](#信息画像-v2) · [`协议`](#压缩账本-v1) · [`OSS 基准`](#基准主流开源语言) · [`重建`](#从仓库根目录重建)
 
 </div>
 
@@ -50,12 +50,39 @@ codensity analyze
 codensity analyze path/to/project --format text
 codensity analyze path/to/project --format json
 codensity analyze path/to/project --ledger-only
+codensity analyze https://github.com/BurntSushi/ripgrep
+codensity analyze https://github.com/BurntSushi/ripgrep --granularity file
+codensity analyze https://github.com/BurntSushi/ripgrep --granularity function --format json
 ```
 
 省略路径时，字面默认值是 `src`。文本输出适合阅读；JSON 提供稳定 schema、冻结
 账本、完整 `profile`、分项值、固定权重和解释边界。`codensity analyze` 会执行完整
 画像，适合离线研究；大型仓库需要多次串流压缩，因此会明显慢于 v0.1 的单次 zstd
 分析。只需要可复现的旧压缩账本时使用 `--ledger-only`。
+
+## 仓库与函数级分析
+
+对公开 GitHub 仓库，`analyze` 接受裸仓库链接、`/tree/<ref>` 或完整
+`/commit/<40-hex>` 链接。工具先把可变 ref 解析为完整 commit，再下载该 commit 的
+codeload archive；输出同时记录规范仓库 URL、commit 与实际 archive 的 SHA-256。归档
+只会在临时目录中安全展开，失败或命令结束后不会留下半成品。当前单次归档上限是
+256 MiB。
+
+`--granularity file` 在总体账本之外独立测量每个已识别源码文件；
+`--granularity function` 再测量函数体。函数模式目前只支持真正的 Rust `syn` AST：
+自由函数、impl 方法、trait 方法和闭包；非 Rust 语言会列在
+`unsupported_function_languages`，不会假装用正则切函数。小于 512 字节的函数会标记
+`small_sample: true`，其压缩率方差很高。
+
+```bash
+codensity compare https://github.com/BurntSushi/ripgrep https://github.com/serde-rs/serde
+codensity compare https://github.com/BurntSushi/ripgrep https://github.com/serde-rs/serde --granularity function --format json
+```
+
+`compare` 计算 `C(A)`、`C(B)`、`C(A+B)` 以及扣除一个空 zstd 帧后的
+`adjusted_cross_stream_gain`。函数模式只报告由相同函数符号或共享 64-byte 指纹选出的
+Rust AST 函数候选，并列出双方 span、SHA-256 和小样本标记。它衡量的是共同字节模式，
+不是语义相似、抄袭证明、真实结构耦合、依赖方向、因果关系或质量分数。
 
 ## 两文件关系信号
 
@@ -130,7 +157,7 @@ profile:
 熵、有效信号以及经信号校正后的压缩分项；大段模板会同时损失压缩和独特性。
 `confidence` 结合有效源码量和语言基线样本数，只说明比较稳定性，不是分数高低。
 
-语言基线来自仓库中冻结的 14 个 OSS 快照，只纳入单个项目/语言至少 64 KiB 的流。
+语言基线来自仓库中冻结的 17 个 OSS 快照，只纳入单个项目/语言至少 64 KiB 的流。
 样本数始终随结果输出；少于 3 个样本时不伪造百分位。当前基线规模仍小，适合做
 初步归一化和暴露偏差，尚不适合当作行业常模。
 
@@ -172,13 +199,14 @@ schema v1 清单示例：
       "version": "1.0.0",
       "revision": "0123456789abcdef0123456789abcdef01234567",
       "source_url": "https://github.com/example/example",
+      "archive_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
       "path": "/local/git-snapshots/example"
     }
   ]
 }
 ```
 
-`revision` 与 `archive_sha256` 可省略。Git 来源应把 `source_url` 设为 GitHub 仓库地址，并用完整 commit SHA 固定 `revision`；`path` 指向从该 commit 导出的 tracked snapshot。项目按 `(name, version)` 排序，重复项目、无效 schema、字段或本地目录会报错。输出可以位于所有项目之外；若规范化后的真实位置位于某个项目内，则只能放在该项目根目录直属的 `.codensity/` 子树中，工具会在分析前安全创建 `.codensity/` 及内容严格为 `*`、`!.gitignore` 两行规则的 `.gitignore`。已有规则不同会报错且不会覆盖；`.codensity` 目录本身和保留的 `.gitignore` 都不能作为数据库输出。这个托管目录是协议固定排除项，不会反馈进指标。其他项目内部输出会被拒绝；项目根重叠时，输出必须同时满足每个包含它的项目。
+本地 `path` 可选，作为可复用的已导出缓存；没有它、或缓存目录不存在时，GitHub 项目必须提供完整 commit SHA 的 `revision` 与 archive 的 `archive_sha256`，工具会下载、校验并分析该不可变快照。项目按 `(name, version)` 排序，重复项目、无效 schema、字段或本地目录会报错。输出可以位于所有项目之外；若规范化后的真实位置位于某个项目内，则只能放在该项目根目录直属的 `.codensity/` 子树中，工具会在分析前安全创建 `.codensity/` 及内容严格为 `*`、`!.gitignore` 两行规则的 `.gitignore`。已有规则不同会报错且不会覆盖；`.codensity` 目录本身和保留的 `.gitignore` 都不能作为数据库输出。这个托管目录是协议固定排除项，不会反馈进指标。其他项目内部输出会被拒绝；项目根重叠时，输出必须同时满足每个包含它的项目。
 
 输出使用稳定的格式化 JSON，通过目标文件旁的临时文件完整写入后原子重命名；数据库只保留项目来源信息，不会序列化本地 `path`。在 Windows 上，标准库不能原子替换已有目标时，工具会安全报错并保留原目标，而不会先删除再重命名。
 
@@ -194,7 +222,8 @@ codensity database update --tag v0.1.0 --output database-v1.json
 校验下载字节，再检查数据库 schema 与协议标识，全部通过后才原子替换本地输出。
 默认输出为当前目录的 `database-v1.json`；下载、校验或解析失败时，已有文件保持不变。
 这条路径适合消费已发布基准；`database build` 仍是从本地固定源码重建并审计数据的
-可复现生产路径。
+可复现生产路径。仓库的 GitHub Actions 每周一和手动触发时均重新获取清单快照、校验
+archive digest，并把新生成的 `database-v1.json` 作为带日期的 GitHub Release asset 发布。
 
 ## 基准：主流开源语言
 
@@ -220,6 +249,7 @@ codensity database update --tag v0.1.0 --output database-v1.json
 | PHP | 2 | 5.98 MiB | 0.107568 | 89.24% |
 | Python | 7 | 1.20 MiB | 0.205718 | 79.43% |
 | Ruby | 3 | 16.99 MiB | 0.135852 | 86.41% |
+| Rust | 3 | 5.34 MiB | 0.123948 | 87.61% |
 | Shell | 11 | 1.27 MiB | 0.215192 | 78.48% |
 | Swift | 3 | 0.55 MiB | 0.131419 | 86.86% |
 | TSX | 3 | 0.37 MiB | 0.188271 | 81.17% |
@@ -235,6 +265,7 @@ JSX 在这批固定快照中没有带 `.jsx` 扩展名的非空文件，因此�
 | [Catch2](https://github.com/catchorg/Catch2) | `v3.8.1` / `2b60af89` |
 | [Caddy](https://github.com/caddyserver/caddy) | `2026-07-25-c96bca12` / `c96bca12` |
 | [CocoaLumberjack](https://github.com/CocoaLumberjack/CocoaLumberjack) | `2026-06-30-44f4f266` / `44f4f266` |
+| [clap](https://github.com/clap-rs/clap) | `v4.6.4` / `466b2be5` |
 | [Flask](https://github.com/pallets/flask) | `2026-05-31-36e4a824` / `36e4a824` |
 | [fmt](https://github.com/fmtlib/fmt) | `2026-07-26-caf5e48b` / `caf5e48b` |
 | [gin](https://github.com/gin-gonic/gin) | `v1.11.0` / `6ad6205e` |
@@ -246,6 +277,8 @@ JSX 在这批固定快照中没有带 `.jsx` 扩展名的非空文件，因此�
 | [Rails](https://github.com/rails/rails) | `v8.0.2` / `32358275` |
 | [React](https://github.com/facebook/react) | `v19.1.1` / `02ef4958` |
 | [Requests](https://github.com/psf/requests) | `v2.32.5` / `b25c87d7` |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | `15.2.0` / `e89fff89` |
+| [serde](https://github.com/serde-rs/serde) | `v1.0.229` / `7fc3b4c3` |
 | [Serilog](https://github.com/serilog/serilog) | `v4.3.0` / `1b461379` |
 | [Sidekiq](https://github.com/sidekiq/sidekiq) | `2026-07-28-27ec9821` / `27ec9821` |
 | [Swift Algorithms](https://github.com/apple/swift-algorithms) | `1.2.1` / `87e50f48` |

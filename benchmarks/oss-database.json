@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "codensity_version": "0.2.0",
+  "codensity_version": "0.4.0",
   "zstd_version": "1.5.7",
   "protocol": "codensity-zstd19-concat-v1",
   "projects": [
@@ -12,7 +12,7 @@
       "archive_sha256": "f4e356097d4107f841914eee3bd1332280cf59c998b0d865dd64eb796e271f8a",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "afnetworking",
@@ -64,7 +64,7 @@
       "archive_sha256": "0c3170e98ee7b35373871edc945e16a64385637fbdcae3c14f53a7d0ab488231",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "caddy",
@@ -125,7 +125,7 @@
       "archive_sha256": "553e6c94498c42edaecc9c8459f1a320a7e4cf49155635cf7123212bb9f09cf2",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "catch2",
@@ -188,6 +188,58 @@
       }
     },
     {
+      "name": "clap",
+      "version": "v4.6.4",
+      "revision": "466b2be56c5811d1af62c407f5a00456350ece62",
+      "source_url": "https://github.com/clap-rs/clap",
+      "archive_sha256": "344c378b854250f7a78e09930e97bb3c25e6fc29432d0f9ed004f934feeb6c5f",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.4.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "clap",
+        "overall": {
+          "file_count": 362,
+          "original_bytes": 2660742,
+          "compressed_bytes": 292234,
+          "ratio": 0.10983176873218073,
+          "savings": 0.8901682312678193,
+          "sha256": "d34e2bb2c941964c2c88a87fd4488b745ce9be437b0b90c8fa187ec7e80ca382"
+        },
+        "languages": [
+          {
+            "language": "Rust",
+            "file_count": 330,
+            "original_bytes": 2562516,
+            "compressed_bytes": 288535,
+            "ratio": 0.11259832133731068,
+            "savings": 0.8874016786626893,
+            "sha256": "12c41151dbb3d46dba8c7026c3ba0ad2c298465f78b2f859fdf83495207954db"
+          },
+          {
+            "language": "Python",
+            "file_count": 1,
+            "original_bytes": 1029,
+            "compressed_bytes": 449,
+            "ratio": 0.4363459669582119,
+            "savings": 0.5636540330417881,
+            "sha256": "469bdb9f798b7fc680eaeea544e89d995a09fc3334f59bee2aa37ad9838aa74a"
+          },
+          {
+            "language": "Shell",
+            "file_count": 31,
+            "original_bytes": 97197,
+            "compressed_bytes": 4163,
+            "ratio": 0.04283054003724395,
+            "savings": 0.957169459962756,
+            "sha256": "5f68ac31e4a91cd5d063c9c1afeece4bfb2c134fc662c5531d0e3370f88a9971"
+          }
+        ],
+        "skipped_file_count": 247
+      }
+    },
+    {
       "name": "cocoalumberjack",
       "version": "2026-06-30-44f4f266",
       "revision": "44f4f2669d026430b3335e9c23fb83c5ad00f2e7",
@@ -195,7 +247,7 @@
       "archive_sha256": "28f40b5235057e7761b2abde9bb2a8ab5a2ae053075f03ed423dd62e537cae57",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "cocoalumberjack",
@@ -274,7 +326,7 @@
       "archive_sha256": "2c9bcee45c2444aca88d6e464581434c2c85dbf5d24767d78f9e6976ec616a88",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "flask",
@@ -317,7 +369,7 @@
       "archive_sha256": "d692a9748abf9ff6abb4459966621dd1480fcaf961198e99e9dc1e066e1339a8",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "fmt",
@@ -396,7 +448,7 @@
       "archive_sha256": "c96267cb1b79db586c5509364c5501a2273fdbe7299fe7e43cf28409decd8254",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "gin",
@@ -430,7 +482,7 @@
       "archive_sha256": "fde9c6ee398be281ff4f12d7341d56179874b2588a7dcbfe7c30469c58abc961",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "guava",
@@ -491,7 +543,7 @@
       "archive_sha256": "f5b28eca6aa3a4fdc389bbdda66f9de124b477822f62879e0b2f7df5030e3e6f",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "kotlinx-coroutines",
@@ -552,7 +604,7 @@
       "archive_sha256": "15c8ce3805275a1f3bd52610a50678eb9bd0d0a930a62278570b267dc781ad9f",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "laravel-framework",
@@ -595,7 +647,7 @@
       "archive_sha256": "9dbf2a0f44397c480cac4d381b0d5b6ee40a81654df841372ff7c09fd57b5670",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "neovim",
@@ -674,7 +726,7 @@
       "archive_sha256": "9abbd44e9524ee4d1f43f202b91dffa34151212d54fd13b9fa779bfc75f4e881",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "oh-my-zsh",
@@ -717,7 +769,7 @@
       "archive_sha256": "bfa2d425e15e94f2f8d2f2d8674aa12c51bfc7b4f7b7a245c8a30395413c172f",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "rails",
@@ -769,7 +821,7 @@
       "archive_sha256": "9bfe6c07fde98048df7a03be9de788dbf17211875e4ca348a1a7b684691d5b25",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "react",
@@ -857,7 +909,7 @@
       "archive_sha256": "f43c1e132868abb6a7002ec4a4232b86610bf55c2deba17ef7b53cdc39794eae",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "requests",
@@ -884,6 +936,92 @@
       }
     },
     {
+      "name": "ripgrep",
+      "version": "15.2.0",
+      "revision": "e89fff89ac9af12e8d4ce9d5fd07beb408ca730f",
+      "source_url": "https://github.com/BurntSushi/ripgrep",
+      "archive_sha256": "af40d0f4cb7a55994906c009a7ba865047f0d487c95bceb8db59ffc4f2173d20",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.4.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "ripgrep",
+        "overall": {
+          "file_count": 104,
+          "original_bytes": 1824182,
+          "compressed_bytes": 285676,
+          "ratio": 0.15660498787949886,
+          "savings": 0.8433950121205012,
+          "sha256": "3b1036f55146c949a871dbf78ca93b28ef3349da937b71bb79c5a25c15410955"
+        },
+        "languages": [
+          {
+            "language": "Rust",
+            "file_count": 100,
+            "original_bytes": 1791121,
+            "compressed_bytes": 276554,
+            "ratio": 0.15440274554315425,
+            "savings": 0.8455972544568457,
+            "sha256": "8e3a5b83b473cb33bf6acd4409a3ebe69354e6eb7f2dea017b8fc053598717d9"
+          },
+          {
+            "language": "Ruby",
+            "file_count": 1,
+            "original_bytes": 804,
+            "compressed_bytes": 424,
+            "ratio": 0.527363184079602,
+            "savings": 0.47263681592039797,
+            "sha256": "e37f6970d0f8ab455915f92acb210f801099fb0b92627b98b7d5fa29d04d5d05"
+          },
+          {
+            "language": "Shell",
+            "file_count": 3,
+            "original_bytes": 32257,
+            "compressed_bytes": 10586,
+            "ratio": 0.32817682983538454,
+            "savings": 0.6718231701646155,
+            "sha256": "a7b12058a94a692d944a629c52b45fd17ab81582c6399647b70d052ef384841e"
+          }
+        ],
+        "skipped_file_count": 117
+      }
+    },
+    {
+      "name": "serde",
+      "version": "v1.0.229",
+      "revision": "7fc3b4c30c94f73a96ebd1553f2b090d928fc3a8",
+      "source_url": "https://github.com/serde-rs/serde",
+      "archive_sha256": "bf75f83a1020f0d37a70221b96bd7571fdf3ec7f24838bd739704d2870629108",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.4.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "serde",
+        "overall": {
+          "file_count": 208,
+          "original_bytes": 1246887,
+          "compressed_bytes": 129086,
+          "ratio": 0.103526622701175,
+          "savings": 0.896473377298825,
+          "sha256": "ae9711f2e1506c9260fe0511fbc429ea1043860fe9ac6d99ab0df5a242bf48a7"
+        },
+        "languages": [
+          {
+            "language": "Rust",
+            "file_count": 208,
+            "original_bytes": 1246887,
+            "compressed_bytes": 129086,
+            "ratio": 0.103526622701175,
+            "savings": 0.896473377298825,
+            "sha256": "ae9711f2e1506c9260fe0511fbc429ea1043860fe9ac6d99ab0df5a242bf48a7"
+          }
+        ],
+        "skipped_file_count": 139
+      }
+    },
+    {
       "name": "serilog",
       "version": "v4.3.0",
       "revision": "1b461379f4e218a939d5c94897df2a1dbbf90573",
@@ -891,7 +1029,7 @@
       "archive_sha256": "c6e521a7d85da25d920e2a95ba7c35d19cfe2057d30d1c4f6f8867aaf669b42b",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "serilog",
@@ -925,7 +1063,7 @@
       "archive_sha256": "aed907ab0c94e86a7ec2d8343ac3287e0b9a37acd6c15e1cdf387f85c2798b61",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "sidekiq",
@@ -968,7 +1106,7 @@
       "archive_sha256": "57f7faed9c572b7517bac082eed28f48653d49e0b86e1cdd239602a09112e8fe",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "swift-algorithms",
@@ -1002,7 +1140,7 @@
       "archive_sha256": "bfce164d0d86da62a2b79c2585a7e0fc08ff8d15ce9c87748a756de4960531e8",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.2.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "typescript",
@@ -1054,7 +1192,7 @@
       "archive_sha256": "ca74135578a30b0628ff6ac2a627080965d7d0b9f524316655e3a211da53d6c4",
       "analysis": {
         "schema_version": 1,
-        "codensity_version": "0.1.0",
+        "codensity_version": "0.4.0",
         "zstd_version": "1.5.7",
         "protocol": "codensity-zstd19-concat-v1",
         "input_label": "vue-core",
