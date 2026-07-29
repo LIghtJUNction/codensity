@@ -102,6 +102,40 @@
       }
     },
     {
+      "name": "flet-visual-builder",
+      "version": "2026-02-17-1d35cdbb",
+      "revision": "1d35cdbb1981f6451b09503a84f0cf19d4420858",
+      "source_url": "https://github.com/raffieeey/Flet-Visual-Builder",
+      "archive_sha256": "588eed647be1fa9ee784fc03c2b366fade8f0c6c7d70cf5e60fe1b1466a59936",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "flet-visual-builder",
+        "overall": {
+          "file_count": 39,
+          "original_bytes": 72512,
+          "compressed_bytes": 14848,
+          "ratio": 0.20476610767872905,
+          "savings": 0.795233892321271,
+          "sha256": "2af82d83c12f06b586522219202da27801b6cfd80c9e026180a622a204843333"
+        },
+        "languages": [
+          {
+            "language": "Python",
+            "file_count": 39,
+            "original_bytes": 72512,
+            "compressed_bytes": 14848,
+            "ratio": 0.20476610767872905,
+            "savings": 0.795233892321271,
+            "sha256": "2af82d83c12f06b586522219202da27801b6cfd80c9e026180a622a204843333"
+          }
+        ],
+        "skipped_file_count": 11
+      }
+    },
+    {
       "name": "rust-docs-mcp",
       "version": "2026-07-09-27b26e6b",
       "revision": "27b26e6b0cf2428cd16f628e86a83fdd01d78154",
@@ -142,6 +176,67 @@
           }
         ],
         "skipped_file_count": 32
+      }
+    },
+    {
+      "name": "tauridraw",
+      "version": "2026-03-28-1cb7fb8c",
+      "revision": "1cb7fb8ccf76e6c3605647cb15728cf0c0945646",
+      "source_url": "https://github.com/JohnDeeZimmermann/tauridraw",
+      "archive_sha256": "41aadc8b53e1aba54fe0c75dc983720e12faa97ef31b99293324a48c905ffe76",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "tauridraw",
+        "overall": {
+          "file_count": 463,
+          "original_bytes": 5303367,
+          "compressed_bytes": 1209863,
+          "ratio": 0.22813110991564414,
+          "savings": 0.7718688900843559,
+          "sha256": "64c98c7c28d4e6982cc8bc370923409903f4413dab47db63350a6197fe7b45f4"
+        },
+        "languages": [
+          {
+            "language": "Rust",
+            "file_count": 5,
+            "original_bytes": 9610,
+            "compressed_bytes": 2414,
+            "ratio": 0.25119667013527575,
+            "savings": 0.7488033298647243,
+            "sha256": "626af88e8067dcb2e054cbc0f5814038bbe212de63a463defa334723916d9b25"
+          },
+          {
+            "language": "JavaScript",
+            "file_count": 2,
+            "original_bytes": 869,
+            "compressed_bytes": 502,
+            "ratio": 0.5776754890678941,
+            "savings": 0.4223245109321059,
+            "sha256": "bbc35aad9990dc2aaf19bfaf583e61f6cca5ef41624b64b11710bb8760c025a7"
+          },
+          {
+            "language": "TypeScript",
+            "file_count": 249,
+            "original_bytes": 3798106,
+            "compressed_bytes": 985080,
+            "ratio": 0.25936084985516467,
+            "savings": 0.7406391501448353,
+            "sha256": "cd0995bfca271c07e0d62513b1ec793018effa0aeb83298a902113e679171aac"
+          },
+          {
+            "language": "TSX",
+            "file_count": 207,
+            "original_bytes": 1494782,
+            "compressed_bytes": 241185,
+            "ratio": 0.1613512873449105,
+            "savings": 0.8386487126550894,
+            "sha256": "443ffb7c286e554f771943777ac81050fb8e479a8dfeffcd573d3564fd0be73f"
+          }
+        ],
+        "skipped_file_count": 468
       }
     },
     {

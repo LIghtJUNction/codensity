@@ -24,6 +24,22 @@
       "source_url": "https://github.com/tjacoby2006/ThePantry",
       "archive_sha256": "b09951236f483279bf2e914a8ca0375d161fc25a43229510bc8ca88d382bfef4",
       "path": "sources/the-pantry"
+    },
+    {
+      "name": "flet-visual-builder",
+      "version": "2026-02-17-1d35cdbb",
+      "revision": "1d35cdbb1981f6451b09503a84f0cf19d4420858",
+      "source_url": "https://github.com/raffieeey/Flet-Visual-Builder",
+      "archive_sha256": "588eed647be1fa9ee784fc03c2b366fade8f0c6c7d70cf5e60fe1b1466a59936",
+      "path": "sources/flet-visual-builder"
+    },
+    {
+      "name": "tauridraw",
+      "version": "2026-03-28-1cb7fb8c",
+      "revision": "1cb7fb8ccf76e6c3605647cb15728cf0c0945646",
+      "source_url": "https://github.com/JohnDeeZimmermann/tauridraw",
+      "archive_sha256": "41aadc8b53e1aba54fe0c75dc983720e12faa97ef31b99293324a48c905ffe76",
+      "path": "sources/tauridraw"
     }
   ]
 }

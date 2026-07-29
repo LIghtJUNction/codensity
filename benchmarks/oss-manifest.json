@@ -112,6 +112,54 @@
       "source_url": "https://github.com/microsoft/TypeScript",
       "archive_sha256": "bfce164d0d86da62a2b79c2585a7e0fc08ff8d15ce9c87748a756de4960531e8",
       "path": "sources/typescript"
+    },
+    {
+      "name": "flask",
+      "version": "2026-05-31-36e4a824",
+      "revision": "36e4a824f340fdee7ed50937ba8e7f6bc7d17f81",
+      "source_url": "https://github.com/pallets/flask",
+      "archive_sha256": "2c9bcee45c2444aca88d6e464581434c2c85dbf5d24767d78f9e6976ec616a88",
+      "path": "sources/flask"
+    },
+    {
+      "name": "caddy",
+      "version": "2026-07-25-c96bca12",
+      "revision": "c96bca12693419ac5be751a0cbbae2c3cbf89c58",
+      "source_url": "https://github.com/caddyserver/caddy",
+      "archive_sha256": "0c3170e98ee7b35373871edc945e16a64385637fbdcae3c14f53a7d0ab488231",
+      "path": "sources/caddy"
+    },
+    {
+      "name": "vue-core",
+      "version": "2026-07-21-b5f85183",
+      "revision": "b5f8518379b77c3b62a7a9d2b52f6c76cda09bd5",
+      "source_url": "https://github.com/vuejs/core",
+      "archive_sha256": "ca74135578a30b0628ff6ac2a627080965d7d0b9f524316655e3a211da53d6c4",
+      "path": "sources/vue-core"
+    },
+    {
+      "name": "sidekiq",
+      "version": "2026-07-28-27ec9821",
+      "revision": "27ec98218bfcf6a90080e1852a0bee16ff4e3c80",
+      "source_url": "https://github.com/sidekiq/sidekiq",
+      "archive_sha256": "aed907ab0c94e86a7ec2d8343ac3287e0b9a37acd6c15e1cdf387f85c2798b61",
+      "path": "sources/sidekiq"
+    },
+    {
+      "name": "fmt",
+      "version": "2026-07-26-caf5e48b",
+      "revision": "caf5e48b1c56c3dee14768ed7ce08a9d51d03b58",
+      "source_url": "https://github.com/fmtlib/fmt",
+      "archive_sha256": "d692a9748abf9ff6abb4459966621dd1480fcaf961198e99e9dc1e066e1339a8",
+      "path": "sources/fmt"
+    },
+    {
+      "name": "cocoalumberjack",
+      "version": "2026-06-30-44f4f266",
+      "revision": "44f4f2669d026430b3335e9c23fb83c5ad00f2e7",
+      "source_url": "https://github.com/CocoaLumberjack/CocoaLumberjack",
+      "archive_sha256": "28f40b5235057e7761b2abde9bb2a8ab5a2ae053075f03ed423dd62e537cae57",
+      "path": "sources/cocoalumberjack"
     }
   ]
 }

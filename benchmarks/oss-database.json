@@ -57,6 +57,67 @@
       }
     },
     {
+      "name": "caddy",
+      "version": "2026-07-25-c96bca12",
+      "revision": "c96bca12693419ac5be751a0cbbae2c3cbf89c58",
+      "source_url": "https://github.com/caddyserver/caddy",
+      "archive_sha256": "0c3170e98ee7b35373871edc945e16a64385637fbdcae3c14f53a7d0ab488231",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "caddy",
+        "overall": {
+          "file_count": 327,
+          "original_bytes": 3161024,
+          "compressed_bytes": 595010,
+          "ratio": 0.18823330667530522,
+          "savings": 0.8117666933246948,
+          "sha256": "cf19ecc1371068f02cc50000dd9bfc202a91d8ac886aaf79f8afb11ef55f49ca"
+        },
+        "languages": [
+          {
+            "language": "Go",
+            "file_count": 322,
+            "original_bytes": 3002785,
+            "compressed_bytes": 535389,
+            "ratio": 0.1782974805055973,
+            "savings": 0.8217025194944028,
+            "sha256": "13f864d0c990d42d100218de1f68aad48fec1e2d8c2b0cd90626541922ad230d"
+          },
+          {
+            "language": "JavaScript",
+            "file_count": 1,
+            "original_bytes": 157791,
+            "compressed_bytes": 58555,
+            "ratio": 0.37109214086988485,
+            "savings": 0.6289078591301152,
+            "sha256": "55d973ed2c6283fa77a9027d043857596ebfae1d6cf28bcc0598b637cb304cc9"
+          },
+          {
+            "language": "PHP",
+            "file_count": 3,
+            "original_bytes": 41,
+            "compressed_bytes": 50,
+            "ratio": 1.2195121951219512,
+            "savings": -0.2195121951219512,
+            "sha256": "5275b039310769e73193830187c4f1474b2bc7331ed3123b14414b983f8c5b88"
+          },
+          {
+            "language": "Shell",
+            "file_count": 1,
+            "original_bytes": 407,
+            "compressed_bytes": 273,
+            "ratio": 0.6707616707616708,
+            "savings": 0.3292383292383292,
+            "sha256": "c5a6680c696e7dd0f38e7f7a7198e5ea01c76e2891205b64133a30cf20e40689"
+          }
+        ],
+        "skipped_file_count": 307
+      }
+    },
+    {
       "name": "catch2",
       "version": "v3.8.1",
       "revision": "2b60af89e23d28eefc081bc930831ee9d45ea58b",
@@ -124,6 +185,207 @@
           }
         ],
         "skipped_file_count": 125
+      }
+    },
+    {
+      "name": "cocoalumberjack",
+      "version": "2026-06-30-44f4f266",
+      "revision": "44f4f2669d026430b3335e9c23fb83c5ad00f2e7",
+      "source_url": "https://github.com/CocoaLumberjack/CocoaLumberjack",
+      "archive_sha256": "28f40b5235057e7761b2abde9bb2a8ab5a2ae053075f03ed423dd62e537cae57",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "cocoalumberjack",
+        "overall": {
+          "file_count": 254,
+          "original_bytes": 1378415,
+          "compressed_bytes": 214387,
+          "ratio": 0.15553153440727213,
+          "savings": 0.8444684655927279,
+          "sha256": "2b9264d324561e1f61bff65ec4e36b48ef98cbaf9177a406776ad242cc23763d"
+        },
+        "languages": [
+          {
+            "language": "C",
+            "file_count": 1,
+            "original_bytes": 44,
+            "compressed_bytes": 53,
+            "ratio": 1.2045454545454546,
+            "savings": -0.20454545454545459,
+            "sha256": "cb2556738ecfc2a4e3fc8342d8c7e6a3b68d07bd4aa6ff1d23cfeec2fa47b8c2"
+          },
+          {
+            "language": "C Header",
+            "file_count": 101,
+            "original_bytes": 241551,
+            "compressed_bytes": 44514,
+            "ratio": 0.18428406423488208,
+            "savings": 0.8157159357651179,
+            "sha256": "5cb21d17b520b5ccc1fe48e559f0b4cb94b14c9c2a55c7dba6d720f2edd818e8"
+          },
+          {
+            "language": "JavaScript",
+            "file_count": 1,
+            "original_bytes": 72174,
+            "compressed_bytes": 23359,
+            "ratio": 0.32364840524288524,
+            "savings": 0.6763515947571148,
+            "sha256": "e23a2a4e2d7c2b41ebcdd8ffc0679df7140eb7f52e1eebabf827a88182643c59"
+          },
+          {
+            "language": "Swift",
+            "file_count": 25,
+            "original_bytes": 129007,
+            "compressed_bytes": 17702,
+            "ratio": 0.13721736029827838,
+            "savings": 0.8627826397017216,
+            "sha256": "1401f31a487a1abaea68904f747d4c9bbc7ba0b7dd33e6437fd6b349170dd2e3"
+          },
+          {
+            "language": "Objective-C",
+            "file_count": 123,
+            "original_bytes": 925830,
+            "compressed_bytes": 137296,
+            "ratio": 0.14829504336649277,
+            "savings": 0.8517049566335072,
+            "sha256": "95c1ad52a4c4958d4f7e828ba3c48737686b20dd7c7085743c80a9cd0982c71a"
+          },
+          {
+            "language": "Shell",
+            "file_count": 3,
+            "original_bytes": 9809,
+            "compressed_bytes": 3201,
+            "ratio": 0.326332959526965,
+            "savings": 0.6736670404730349,
+            "sha256": "2b51bc1bf4351ee6d129856bc609a36d3071058b42bcc5e82c5273ef4ea81be4"
+          }
+        ],
+        "skipped_file_count": 325
+      }
+    },
+    {
+      "name": "flask",
+      "version": "2026-05-31-36e4a824",
+      "revision": "36e4a824f340fdee7ed50937ba8e7f6bc7d17f81",
+      "source_url": "https://github.com/pallets/flask",
+      "archive_sha256": "2c9bcee45c2444aca88d6e464581434c2c85dbf5d24767d78f9e6976ec616a88",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "flask",
+        "overall": {
+          "file_count": 84,
+          "original_bytes": 589861,
+          "compressed_bytes": 106705,
+          "ratio": 0.18089855067549812,
+          "savings": 0.8191014493245019,
+          "sha256": "31a3819a5457acaa0f273b1a33761b3e1d7a902cdb0b48e92d16da392105c34c"
+        },
+        "languages": [
+          {
+            "language": "Python",
+            "file_count": 83,
+            "original_bytes": 589696,
+            "compressed_bytes": 106615,
+            "ratio": 0.18079654601693076,
+            "savings": 0.8192034539830693,
+            "sha256": "21fbd3a81809dcf83c0b87ccde8606012e861adb89259ef0e044aa0188258a9f"
+          },
+          {
+            "language": "Shell",
+            "file_count": 1,
+            "original_bytes": 165,
+            "compressed_bytes": 120,
+            "ratio": 0.7272727272727273,
+            "savings": 0.2727272727272727,
+            "sha256": "b863a4cb17ddda2276b26ca97949e480a04fdd89000d8b3a292a95907cd0dafa"
+          }
+        ],
+        "skipped_file_count": 152
+      }
+    },
+    {
+      "name": "fmt",
+      "version": "2026-07-26-caf5e48b",
+      "revision": "caf5e48b1c56c3dee14768ed7ce08a9d51d03b58",
+      "source_url": "https://github.com/fmtlib/fmt",
+      "archive_sha256": "d692a9748abf9ff6abb4459966621dd1480fcaf961198e99e9dc1e066e1339a8",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "fmt",
+        "overall": {
+          "file_count": 78,
+          "original_bytes": 2575273,
+          "compressed_bytes": 448528,
+          "ratio": 0.174167165966482,
+          "savings": 0.825832834033518,
+          "sha256": "3610623603ba552a390743b1c171916eb6315a27faf88b04ff9427aeff06ea54"
+        },
+        "languages": [
+          {
+            "language": "C",
+            "file_count": 1,
+            "original_bytes": 3392,
+            "compressed_bytes": 954,
+            "ratio": 0.28125,
+            "savings": 0.71875,
+            "sha256": "1da68512e63d1e1cb7ac48d8bcc34862ebf6e51cb9d9f29ac798210cc4ea21eb"
+          },
+          {
+            "language": "C Header",
+            "file_count": 25,
+            "original_bytes": 1574639,
+            "compressed_bytes": 286219,
+            "ratio": 0.18176801158868794,
+            "savings": 0.8182319884113121,
+            "sha256": "d806c9c22780f096096f9ce94c9d22621d9e9838fcb84042f218de24c551eaf4"
+          },
+          {
+            "language": "C++",
+            "file_count": 46,
+            "original_bytes": 945643,
+            "compressed_bytes": 170621,
+            "ratio": 0.1804285549620734,
+            "savings": 0.8195714450379266,
+            "sha256": "07711c6a77682157df934402871788a25277d0e5b92fa1041d99665b48d0a65d"
+          },
+          {
+            "language": "Python",
+            "file_count": 4,
+            "original_bytes": 49410,
+            "compressed_bytes": 13274,
+            "ratio": 0.2686500708358632,
+            "savings": 0.7313499291641368,
+            "sha256": "9f045d196f9056601a7db52468e0ef8901a5ca7a9db1597e1587ce6fc776445b"
+          },
+          {
+            "language": "JavaScript",
+            "file_count": 1,
+            "original_bytes": 76,
+            "compressed_bytes": 85,
+            "ratio": 1.118421052631579,
+            "savings": -0.11842105263157898,
+            "sha256": "8a70279ed02d04ebeabfdd88945dcd59a6da04fd4cb69115312ec04ff4bdaa3b"
+          },
+          {
+            "language": "Shell",
+            "file_count": 1,
+            "original_bytes": 2113,
+            "compressed_bytes": 742,
+            "ratio": 0.351159488878372,
+            "savings": 0.648840511121628,
+            "sha256": "cdc1e779610dc134c78a1184182bd3d997a14cf2c00b9d7abbef86ff19ffef31"
+          }
+        ],
+        "skipped_file_count": 64
       }
     },
     {
@@ -656,6 +918,49 @@
       }
     },
     {
+      "name": "sidekiq",
+      "version": "2026-07-28-27ec9821",
+      "revision": "27ec98218bfcf6a90080e1852a0bee16ff4e3c80",
+      "source_url": "https://github.com/sidekiq/sidekiq",
+      "archive_sha256": "aed907ab0c94e86a7ec2d8343ac3287e0b9a37acd6c15e1cdf387f85c2798b61",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "sidekiq",
+        "overall": {
+          "file_count": 177,
+          "original_bytes": 1002325,
+          "compressed_bytes": 224751,
+          "ratio": 0.22422966602648842,
+          "savings": 0.7757703339735116,
+          "sha256": "fb8297eeb972c4427cc15378aedc1d1b06d9b8954516cbda00fd9d47457933f6"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 9,
+            "original_bytes": 329762,
+            "compressed_bytes": 91219,
+            "ratio": 0.2766207143333677,
+            "savings": 0.7233792856666323,
+            "sha256": "9c10c59997dc23e8266552f83b4ce95c497f07e4bdb8757086738440870347dd"
+          },
+          {
+            "language": "Ruby",
+            "file_count": 168,
+            "original_bytes": 672563,
+            "compressed_bytes": 134279,
+            "ratio": 0.19965267194300013,
+            "savings": 0.8003473280569999,
+            "sha256": "43d1d8a96ef01ced207e56f4c0854036a75b72e93075dface48ab4921184853e"
+          }
+        ],
+        "skipped_file_count": 169
+      }
+    },
+    {
       "name": "swift-algorithms",
       "version": "1.2.1",
       "revision": "87e50f483c54e6efd60e885f7f5aa946cee68023",
@@ -739,6 +1044,58 @@
           }
         ],
         "skipped_file_count": 36280
+      }
+    },
+    {
+      "name": "vue-core",
+      "version": "2026-07-21-b5f85183",
+      "revision": "b5f8518379b77c3b62a7a9d2b52f6c76cda09bd5",
+      "source_url": "https://github.com/vuejs/core",
+      "archive_sha256": "ca74135578a30b0628ff6ac2a627080965d7d0b9f524316655e3a211da53d6c4",
+      "analysis": {
+        "schema_version": 1,
+        "codensity_version": "0.1.0",
+        "zstd_version": "1.5.7",
+        "protocol": "codensity-zstd19-concat-v1",
+        "input_label": "vue-core",
+        "overall": {
+          "file_count": 526,
+          "original_bytes": 4360832,
+          "compressed_bytes": 613652,
+          "ratio": 0.1407190187560539,
+          "savings": 0.8592809812439461,
+          "sha256": "bb3839d47f0f4b1dc0f80a588d55c7b8046fe80a5ec9ac7749ab11ed1385702a"
+        },
+        "languages": [
+          {
+            "language": "JavaScript",
+            "file_count": 36,
+            "original_bytes": 74901,
+            "compressed_bytes": 18972,
+            "ratio": 0.2532943485400729,
+            "savings": 0.7467056514599271,
+            "sha256": "5da2e1d915d72c7bab3f757f46813c574af17d9f666ec738879340b97fde04db"
+          },
+          {
+            "language": "TypeScript",
+            "file_count": 485,
+            "original_bytes": 4221919,
+            "compressed_bytes": 588618,
+            "ratio": 0.13941953884003933,
+            "savings": 0.8605804611599607,
+            "sha256": "16828b0029afcaa140453ab933a7a5236d8c9c0ac31c51d9a5671c6b528e0b01"
+          },
+          {
+            "language": "TSX",
+            "file_count": 5,
+            "original_bytes": 64012,
+            "compressed_bytes": 10953,
+            "ratio": 0.1711085421483472,
+            "savings": 0.8288914578516529,
+            "sha256": "e772eb07ee511e0f580cf7e31a1a5a38b9f47fc21e3a8686ec31a32b5d0de01c"
+          }
+        ],
+        "skipped_file_count": 178
       }
     }
   ]
