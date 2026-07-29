@@ -8,8 +8,10 @@ use sha2::{Digest, Sha256};
 use crate::error::{CodensityError, Result};
 use crate::language::{LANGUAGES, language_for_path};
 use crate::model::{
-    ANALYSIS_SCHEMA_VERSION, AnalysisResult, LanguageResult, MetricResult, PROTOCOL_ID,
+    ANALYSIS_SCHEMA_VERSION, AnalysisResult, LEDGER_SCHEMA_VERSION, LanguageResult, MetricResult,
+    PROTOCOL_ID,
 };
+use crate::profile::build_profile;
 use crate::{CODENSITY_VERSION, zstd_version};
 
 const BUFFER_SIZE: usize = 64 * 1024;
@@ -27,15 +29,15 @@ const EXCLUDED_DIRECTORIES: &[&str] = &[
 ];
 
 #[derive(Debug)]
-struct SourceFile {
-    path: PathBuf,
-    relative: String,
-    language_index: usize,
+pub(crate) struct SourceFile {
+    pub(crate) path: PathBuf,
+    pub(crate) relative: String,
+    pub(crate) language_index: usize,
 }
 
 #[derive(Default)]
-struct CountingWriter {
-    bytes: u64,
+pub(crate) struct CountingWriter {
+    pub(crate) bytes: u64,
 }
 
 impl Write for CountingWriter {
@@ -82,6 +84,18 @@ pub fn safe_input_label(path: &Path) -> Result<String> {
 /// unrepresentable relative paths, counter overflow, or a corpus without
 /// recognized non-empty source bytes.
 pub fn analyze_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
+    analyze(path, input_label, true)
+}
+
+/// Analyzes only the frozen schema-v1 compression ledger.
+///
+/// Database generation uses this entry point so the published v0.1 benchmark
+/// ledgers remain byte-for-byte reproducible.
+pub fn analyze_ledger_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
+    analyze(path, input_label, false)
+}
+
+fn analyze(path: &Path, input_label: &str, include_profile: bool) -> Result<AnalysisResult> {
     if !path.exists() {
         return Err(CodensityError::InputNotFound(path.to_path_buf()));
     }
@@ -108,8 +122,24 @@ pub fn analyze_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
         });
     }
 
+    let profile = if include_profile {
+        Some(build_profile(
+            path,
+            &files,
+            overall.original_bytes,
+            overall.compressed_bytes,
+            &languages,
+        )?)
+    } else {
+        None
+    };
+
     Ok(AnalysisResult {
-        schema_version: ANALYSIS_SCHEMA_VERSION,
+        schema_version: if include_profile {
+            ANALYSIS_SCHEMA_VERSION
+        } else {
+            LEDGER_SCHEMA_VERSION
+        },
         codensity_version: CODENSITY_VERSION.to_owned(),
         zstd_version: zstd_version().to_owned(),
         protocol: PROTOCOL_ID.to_owned(),
@@ -117,6 +147,7 @@ pub fn analyze_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
         overall,
         languages,
         skipped_file_count,
+        profile,
     })
 }
 
