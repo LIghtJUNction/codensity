@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 use std::fs::{self, File, OpenOptions};
-use std::io::{BufWriter, Write};
+use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -10,6 +10,7 @@ use crate::model::{
     DATABASE_SCHEMA_VERSION, Database, DatabaseProject, Manifest, ManifestProject, PROTOCOL_ID,
 };
 use crate::{CODENSITY_VERSION, zstd_version};
+use serde::Serialize;
 
 static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 const MANAGED_IGNORE_CONTENTS: &[u8] = b"*\n!.gitignore\n";
@@ -82,7 +83,7 @@ pub fn build_database(manifest_path: &Path, output_path: &Path) -> Result<Databa
         protocol: PROTOCOL_ID.to_owned(),
         projects,
     };
-    write_atomic(&resolved_output, &database)?;
+    write_atomic_json(&resolved_output, &database)?;
     Ok(database)
 }
 
@@ -221,7 +222,7 @@ fn require_managed_output(relative: &Path, output: &Path, project: &str) -> Resu
     }
 }
 
-fn ensure_managed_directory(project_root: &Path) -> Result<()> {
+pub(crate) fn ensure_managed_directory(project_root: &Path) -> Result<()> {
     let managed = project_root.join(".codensity");
     match fs::symlink_metadata(&managed) {
         Ok(metadata) if metadata.is_dir() && !metadata.file_type().is_symlink() => {}
@@ -410,14 +411,18 @@ fn database_project(
     }
 }
 
-fn write_atomic(path: &Path, database: &Database) -> Result<()> {
+pub(crate) fn write_atomic_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
+    let mut bytes = serde_json::to_vec_pretty(value).map_err(CodensityError::OutputJson)?;
+    bytes.push(b'\n');
+    write_atomic_bytes(path, &bytes)
+}
+
+pub(crate) fn write_atomic_bytes(path: &Path, bytes: &[u8]) -> Result<()> {
     let (mut temporary, file) = create_temp_sibling(path)?;
     {
-        let mut writer = BufWriter::new(file);
-        serde_json::to_writer_pretty(&mut writer, database)
-            .map_err(CodensityError::DatabaseJson)?;
+        let mut writer = file;
         writer
-            .write_all(b"\n")
+            .write_all(bytes)
             .map_err(|source| CodensityError::OutputIo {
                 path: temporary.path.clone(),
                 source,
@@ -427,7 +432,6 @@ fn write_atomic(path: &Path, database: &Database) -> Result<()> {
             source,
         })?;
         writer
-            .get_ref()
             .sync_all()
             .map_err(|source| CodensityError::OutputIo {
                 path: temporary.path.clone(),

@@ -8,7 +8,7 @@ pub const DATABASE_SCHEMA_VERSION: u32 = 1;
 pub const PROTOCOL_ID: &str = "codensity-zstd19-concat-v1";
 
 /// Metrics for one concatenated byte stream.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MetricResult {
     /// Number of recognized files, including empty files.
     pub file_count: u64,
@@ -25,7 +25,7 @@ pub struct MetricResult {
 }
 
 /// Metrics for one canonical language.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct LanguageResult {
     /// Stable canonical language name.
     pub language: String,
@@ -35,7 +35,7 @@ pub struct LanguageResult {
 }
 
 /// Complete schema-v1 result from one analysis.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnalysisResult {
     /// Analysis schema version.
     pub schema_version: u32,
@@ -84,7 +84,7 @@ pub struct ManifestProject {
 }
 
 /// Stable schema-v1 database.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Database {
     /// Database schema version.
     pub schema_version: u32,
@@ -99,7 +99,7 @@ pub struct Database {
 }
 
 /// One project record in a database.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DatabaseProject {
     /// Project name from the manifest.
     pub name: String,

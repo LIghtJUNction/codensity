@@ -11,6 +11,23 @@ pub enum CodensityError {
     #[error("project path is not a directory: {0}")]
     ProjectPathNotDirectory(PathBuf),
 
+    /// An initialization target is not a directory.
+    #[error("initialization path is not a directory: {0}")]
+    InitializationPathNotDirectory(PathBuf),
+
+    /// An initialization target could not be resolved to a canonical path.
+    #[error("failed to resolve initialization path `{path}`: {source}")]
+    InitializationCanonicalize {
+        /// Initialization path supplied by the user.
+        path: PathBuf,
+        /// Underlying canonicalization error.
+        source: std::io::Error,
+    },
+
+    /// An initialization target is too broad without explicit confirmation.
+    #[error("refusing to initialize filesystem root or home directory without --force: {0}")]
+    InitializationRequiresForce(PathBuf),
+
     /// A filesystem walker could not inspect the input.
     #[error("failed to walk input `{root}`: {source}")]
     Walk {
@@ -166,9 +183,9 @@ pub enum CodensityError {
         source: std::io::Error,
     },
 
-    /// Stable database JSON serialization failed.
-    #[error("failed to serialize database: {0}")]
-    DatabaseJson(#[source] serde_json::Error),
+    /// Stable JSON serialization failed.
+    #[error("failed to serialize output JSON: {0}")]
+    OutputJson(#[source] serde_json::Error),
 
     /// The completed sibling file could not be atomically renamed.
     #[error("failed to rename `{from}` to `{to}`: {source}")]
@@ -179,6 +196,96 @@ pub enum CodensityError {
         to: PathBuf,
         /// Underlying rename error.
         source: std::io::Error,
+    },
+
+    /// A release tag cannot safely form a GitHub API URL segment.
+    #[error("release tag contains unsupported characters: {0}")]
+    InvalidReleaseTag(String),
+
+    /// GitHub release metadata or an asset could not be requested.
+    #[error("failed to request GitHub release resource `{url}`: {source}")]
+    ReleaseRequest {
+        /// Requested HTTPS URL.
+        url: String,
+        /// HTTP client failure.
+        source: ureq::Error,
+    },
+
+    /// A GitHub release response body could not be read.
+    #[error("failed to read GitHub release resource `{url}`: {source}")]
+    ReleaseResponse {
+        /// Requested HTTPS URL.
+        url: String,
+        /// Response stream failure.
+        source: ureq::Error,
+    },
+
+    /// GitHub release metadata was not valid JSON.
+    #[error("failed to parse GitHub release metadata `{url}`: {source}")]
+    ReleaseMetadataJson {
+        /// Requested release API URL.
+        url: String,
+        /// JSON parsing failure.
+        source: serde_json::Error,
+    },
+
+    /// The expected protocol-versioned database asset was absent from a release.
+    #[error("GitHub release does not contain required asset `{asset}`")]
+    ReleaseAssetMissing {
+        /// Required asset name.
+        asset: &'static str,
+    },
+
+    /// The release asset did not provide a SHA-256 digest in GitHub's format.
+    #[error("GitHub release asset `{asset}` has no valid sha256 digest")]
+    ReleaseAssetDigestInvalid {
+        /// Required asset name.
+        asset: &'static str,
+    },
+
+    /// The release asset URL was not an official repository download URL.
+    #[error("GitHub release asset `{asset}` has an unexpected download URL: {url}")]
+    ReleaseAssetUrl {
+        /// Required asset name.
+        asset: &'static str,
+        /// Untrusted download URL returned in release metadata.
+        url: String,
+    },
+
+    /// The downloaded bytes did not match GitHub's published SHA-256 digest.
+    #[error("GitHub release asset `{asset}` failed SHA-256 verification")]
+    ReleaseDigestMismatch {
+        /// Required asset name.
+        asset: &'static str,
+    },
+
+    /// A verified release asset was not a valid database JSON document.
+    #[error("failed to parse verified release database: {0}")]
+    ReleaseDatabaseJson(#[source] serde_json::Error),
+
+    /// A verified release database used an unsupported schema.
+    #[error("unsupported release database schema version {found}; expected 1")]
+    UnsupportedDatabaseSchema {
+        /// Schema version found in the downloaded database.
+        found: u32,
+    },
+
+    /// A verified release database used a different metric protocol.
+    #[error("release database protocol `{found}` does not match `{expected}`")]
+    ReleaseProtocolMismatch {
+        /// Protocol in the downloaded database.
+        found: String,
+        /// Protocol required by this binary.
+        expected: &'static str,
+    },
+
+    /// A release database contains the same project identity more than once.
+    #[error("release database contains duplicate project identity: ({name}, {version})")]
+    DuplicateReleaseProject {
+        /// Duplicate project name.
+        name: String,
+        /// Duplicate project version.
+        version: String,
     },
 }
 

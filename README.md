@@ -37,6 +37,19 @@ codensity analyze path/to/project --format json
 
 省略路径时，字面默认值是 `src`。文本输出适合阅读；JSON 使用数值比率，并提供 schema、工具、zstd 与协议版本、输入逻辑标签、总体结果、按语言结果和跳过文件数。
 
+## 初始化项目
+
+```bash
+codensity init
+codensity init path/to/project
+```
+
+和 `codegraph init` 一样，`init` 默认初始化当前目录；它创建受管理的
+`.codensity/` 目录，并将当前的协议 v1 分析原子写入
+`.codensity/analysis.json`。该目录及其内容是协议固定排除项，所以快照不会进入
+自身的源码流；再次运行会安全地刷新该快照。初始化文件系统根目录或当前用户主目录
+必须显式添加 `--force`。
+
 ### 项目自分析
 
 使用 release 构建分析 `codensity` 当前源码：
@@ -47,17 +60,19 @@ target/release/codensity analyze . --format json
 
 | 指标 | 结果 |
 |---|---:|
-| Rust 文件 | 8 |
-| 原始字节 | 75,404 |
-| zstd 压缩字节 | 13,908 |
-| 压缩比 | 0.184446 |
-| 节省率 | 81.56% |
-| 跳过文件 | 4 |
-| 源码流 SHA-256 | `02577f73a282b1f94ebc8594bd9926b1b4a83ca5ab68ebadf18d1ef78b68c39f` |
+| Rust 文件 | 10 |
+| 原始字节 | 92,666 |
+| zstd 压缩字节 | 17,094 |
+| 压缩比 | 0.184469 |
+| 节省率 | 81.55% |
+| 跳过文件 | 工作区相关，不参与源码流 |
+| 源码流 SHA-256 | `621160d25313fb936d2af2fece2214cc0d844be39a037bfd8ec53c66f9887459` |
 
-这里的四个跳过文件是未被语言表识别的 `.gitignore`、`Cargo.toml`、`Cargo.lock` 和 `README.md`；工具不会读取未知扩展名的内容。`.git`、`.codensity` 和 `target` 等固定排除目录不计入跳过文件。
+`skipped_file_count` 统计遍历到但未被语言表识别的普通文件，所以会随工作区内的
+说明、资产和本地工具文件变化；它们不会被读取，也不会影响源码流、压缩比或 SHA-256。
+`.git`、`.codensity` 和 `target` 等固定排除目录不计入该数值。
 
-本项目的 `0.184446` 高于 12 个 Rust 仓库样本的中位数 `0.132867` 和四分位上界 `0.158087`，即在当前协议下比样本中的多数项目更难压缩。不过，本项目的 Rust 语料只有约 74 KiB，甚至小于基准中最小的项目；与小型 Rust 项目组的 `0.167389–0.181687` 相比则只略高于上沿。更合理的解释是小语料中的 zstd 帧固定开销占比更高、可供跨文件复用的重复模式更少，而不是代码质量较差。
+本项目的 `0.184469` 高于 12 个 Rust 仓库样本的中位数 `0.132867` 和四分位上界 `0.158087`，即在当前协议下比样本中的多数项目更难压缩。不过，本项目的 Rust 语料只有约 90 KiB，甚至小于基准中最小的项目；与小型 Rust 项目组的 `0.167389–0.181687` 相比则只略高于上沿。更合理的解释是小语料中的 zstd 帧固定开销占比更高、可供跨文件复用的重复模式更少，而不是代码质量较差。
 
 ## 协议
 
@@ -93,6 +108,20 @@ schema v1 清单示例：
 `revision` 与 `archive_sha256` 可省略。Git 来源应把 `source_url` 设为 GitHub 仓库地址，并用完整 commit SHA 固定 `revision`；`path` 指向从该 commit 导出的 tracked snapshot。项目按 `(name, version)` 排序，重复项目、无效 schema、字段或本地目录会报错。输出可以位于所有项目之外；若规范化后的真实位置位于某个项目内，则只能放在该项目根目录直属的 `.codensity/` 子树中，工具会在分析前安全创建 `.codensity/` 及内容严格为 `*`、`!.gitignore` 两行规则的 `.gitignore`。已有规则不同会报错且不会覆盖；`.codensity` 目录本身和保留的 `.gitignore` 都不能作为数据库输出。这个托管目录是协议固定排除项，不会反馈进指标。其他项目内部输出会被拒绝；项目根重叠时，输出必须同时满足每个包含它的项目。
 
 输出使用稳定的格式化 JSON，通过目标文件旁的临时文件完整写入后原子重命名；数据库只保留项目来源信息，不会序列化本地 `path`。在 Windows 上，标准库不能原子替换已有目标时，工具会安全报错并保留原目标，而不会先删除再重命名。
+
+### 从官方 Release 更新数据库
+
+```bash
+codensity database update
+codensity database update --tag v0.1.0 --output database-v1.json
+```
+
+`update` 默认请求 `LIghtJUNction/codensity` 的最新公开 GitHub Release，并只接受
+与协议 v1 对应的 `database-v1.json` 资产。它使用 Release API 的 `sha256:` digest
+校验下载字节，再检查数据库 schema 与协议标识，全部通过后才原子替换本地输出。
+默认输出为当前目录的 `database-v1.json`；下载、校验或解析失败时，已有文件保持不变。
+这条路径适合消费已发布基准；`database build` 仍是从本地固定源码重建并审计数据的
+可复现生产路径。
 
 ## 基准：主流开源语言
 

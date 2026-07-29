@@ -5,8 +5,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::{Context, Result};
 use codensity::{
-    CodensityError, LANGUAGES, PROTOCOL_ID, analyze_path, build_database, language_for_path,
-    render_text,
+    CodensityError, LANGUAGES, PROTOCOL_ID, analyze_path, build_database, initialize_project,
+    language_for_path, render_text,
 };
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -448,6 +448,40 @@ fn cli_analyze_should_use_literal_src_as_default_path() -> Result<()> {
         String::from_utf8_lossy(&output.stderr)
     );
     Ok(())
+}
+
+#[test]
+fn init_should_create_a_managed_deterministic_snapshot() -> Result<()> {
+    let fixture = Fixture::new("init")?;
+    fixture.write("src/main.rs", b"fn main() {}\n")?;
+    let path_argument = fixture.path.to_string_lossy().into_owned();
+
+    let first = Command::new(env!("CARGO_BIN_EXE_codensity"))
+        .args(["init", path_argument.as_str()])
+        .output()?;
+    let snapshot_path = fixture.path.join(".codensity/analysis.json");
+    let first_snapshot = fs::read(&snapshot_path)?;
+    let second = initialize_project(&fixture.path, false)?;
+    let second_snapshot = fs::read(&snapshot_path)?;
+    let snapshot: Value = serde_json::from_slice(&second_snapshot)?;
+
+    assert!(
+        first.status.success()
+            && String::from_utf8_lossy(&first.stdout).contains("initialized:")
+            && first_snapshot == second_snapshot
+            && snapshot["overall"]["sha256"] == second.overall.sha256
+            && fs::read(fixture.path.join(".codensity/.gitignore"))? == b"*\n!.gitignore\n"
+    );
+    Ok(())
+}
+
+#[cfg(unix)]
+#[test]
+fn init_should_require_force_for_filesystem_root() {
+    assert!(matches!(
+        initialize_project(Path::new("/"), false),
+        Err(CodensityError::InitializationRequiresForce(_))
+    ));
 }
 
 #[test]
