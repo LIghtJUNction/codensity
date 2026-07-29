@@ -15,7 +15,7 @@ mod model;
 mod profile;
 mod release;
 
-pub use analyzer::{analyze_ledger_path, analyze_path, safe_input_label};
+pub use analyzer::{analyze_ledger_path, analyze_path, relate_paths, safe_input_label};
 pub use database::{build_database, load_manifest};
 pub use error::{CodensityError, Result};
 pub use init::initialize_project;
@@ -25,7 +25,8 @@ pub use model::{
     CompressionProfile, DATABASE_SCHEMA_VERSION, Database, DatabaseProject, DuplicationProfile,
     EntropyProfile, InformationProfile, LEDGER_SCHEMA_VERSION, LanguageBaseline, LanguageResult,
     Manifest, ManifestProject, MetricResult, NoiseProfile, PROFILE_PROTOCOL_ID, PROTOCOL_ID,
-    ScoreProfile, ScoreWeights, StructureProfile, render_text,
+    RELATION_PROTOCOL_ID, RELATION_SCHEMA_VERSION, RelationFileResult, RelationResult,
+    ScoreProfile, ScoreWeights, StructureProfile, render_relation, render_text,
 };
 pub use release::update_database;
 

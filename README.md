@@ -14,7 +14,7 @@
 [![20 OSS snapshots](https://img.shields.io/badge/OSS%20fixed%20snapshots-20-315f54?style=flat-square)](#基准主流开源语言)
 [![5 author self-disclosed AI samples](https://img.shields.io/badge/AI%20self--disclosed%20samples-5-315f54?style=flat-square)](#真实-ai-主导项目样本)
 
-[`分析`](#分析源码) · [`画像`](#信息画像-v2) · [`协议`](#压缩账本-v1) · [`OSS 基准`](#基准主流开源语言) · [`重建`](#从仓库根目录重建)
+[`分析`](#分析源码) · [`两文件关系`](#两文件关系信号) · [`画像`](#信息画像-v2) · [`协议`](#压缩账本-v1) · [`OSS 基准`](#基准主流开源语言) · [`重建`](#从仓库根目录重建)
 
 </div>
 
@@ -56,6 +56,29 @@ codensity analyze path/to/project --ledger-only
 账本、完整 `profile`、分项值、固定权重和解释边界。`codensity analyze` 会执行完整
 画像，适合离线研究；大型仓库需要多次串流压缩，因此会明显慢于 v0.1 的单次 zstd
 分析。只需要可复现的旧压缩账本时使用 `--ledger-only`。
+
+## 两文件关系信号
+
+```bash
+codensity relation --root . src/a.rs src/b.rs
+codensity relation --root path/to/project src/a.rs src/b.rs --format json
+```
+
+`relation` 在同一个根目录的规范扫描中选择两个**不同的、已识别的普通源码文件**；
+它遵循 `.gitignore` 和协议固定排除目录，不跟随符号链接。参数必须是规范化的、相对
+于 `--root` 的路径（不能使用绝对路径、`..` 或 `.`）。结果按 POSIX 相对路径排序，
+所以交换两个参数不会改变 JSON 或文本结果。
+
+它分别计算 `C(A)`、`C(B)` 和 `C(A+B)`；`raw_cross_stream_gain` 是
+`C(A) + C(B) - C(A+B)`，`adjusted_cross_stream_gain` 再减去合并两个独立 zstd 帧时
+天然少掉的一个空帧开销。正值表示两个文件的原始字节存在可由联合压缩复用的模式，
+例如共享模板、相似命名或复制片段。比率以去掉独立帧固定开销后的压缩负载为分母；
+分母不为正时输出 `null`。
+
+这不是结构耦合度：它不解析 import、调用、类型、数据流或运行时行为，也不表达依赖
+方向、因果关系、冗余归因或代码质量。需要分析任意两个文件的真实结构关系时，应使用
+CodeGraph 或语言工具构建 import/call graph；`relation` 只能作为一个可复核的字节级
+候选信号。
 
 ## 初始化项目
 

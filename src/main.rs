@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
 use codensity::{
-    analyze_ledger_path, analyze_path, build_database, initialize_project, render_text,
-    safe_input_label, update_database,
+    analyze_ledger_path, analyze_path, build_database, initialize_project, relate_paths,
+    render_relation, render_text, safe_input_label, update_database,
 };
 
 #[derive(Debug, Parser)]
@@ -36,6 +36,19 @@ enum Command {
         /// Run only the frozen single-zstd schema-v1 ledger.
         #[arg(long)]
         ledger_only: bool,
+    },
+    /// Measure shared byte-level patterns between two source files.
+    Relation {
+        /// Root directory whose canonical source scan selects both files.
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+        /// First root-relative source path.
+        first: PathBuf,
+        /// Second root-relative source path.
+        second: PathBuf,
+        /// Output representation.
+        #[arg(long, value_enum, default_value_t = OutputFormat::Text)]
+        format: OutputFormat,
     },
     /// Work with reproducible analysis databases.
     Database {
@@ -72,7 +85,11 @@ enum OutputFormat {
 }
 
 fn main() -> Result<()> {
-    match Cli::parse().command {
+    run(Cli::parse().command)
+}
+
+fn run(command: Command) -> Result<()> {
+    match command {
         Command::Init { path, force } => {
             initialize_project(&path, force)?;
             println!(
@@ -96,6 +113,18 @@ fn main() -> Result<()> {
                 OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
             }
         }
+        Command::Relation {
+            root,
+            first,
+            second,
+            format,
+        } => {
+            let result = relate_paths(&root, &first, &second)?;
+            match format {
+                OutputFormat::Text => print!("{}", render_relation(&result)),
+                OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&result)?),
+            }
+        }
         Command::Database {
             command: DatabaseCommand::Build { manifest, output },
         } => {
@@ -109,4 +138,40 @@ fn main() -> Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser;
+
+    use super::{Cli, Command, OutputFormat};
+
+    #[test]
+    fn relation_command_parses_root_paths_and_json_format() {
+        let cli = Cli::try_parse_from([
+            "codensity",
+            "relation",
+            "--root",
+            "project",
+            "src/b.rs",
+            "src/a.rs",
+            "--format",
+            "json",
+        ])
+        .expect("parse relation command");
+        match cli.command {
+            Command::Relation {
+                root,
+                first,
+                second,
+                format,
+            } => {
+                assert_eq!(root, std::path::PathBuf::from("project"));
+                assert_eq!(first, std::path::PathBuf::from("src/b.rs"));
+                assert_eq!(second, std::path::PathBuf::from("src/a.rs"));
+                assert!(matches!(format, OutputFormat::Json));
+            }
+            _ => panic!("expected relation command"),
+        }
+    }
 }

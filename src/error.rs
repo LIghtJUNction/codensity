@@ -7,6 +7,27 @@ pub enum CodensityError {
     #[error("input path does not exist: {0}")]
     InputNotFound(PathBuf),
 
+    /// A relation root is not a directory.
+    #[error("relation root is not a directory: {0}")]
+    RelationRootNotDirectory(PathBuf),
+
+    /// A relation path is not safely relative to its root.
+    #[error("relation source path must be a normalized relative path within its root: {0}")]
+    RelationPathOutsideRoot(PathBuf),
+
+    /// A relation path is not an included recognized regular source file.
+    #[error("relation source is not an included recognized regular file under `{root}`: {path}")]
+    RelationSourceUnavailable {
+        /// Relation root.
+        root: PathBuf,
+        /// Requested relative path.
+        path: PathBuf,
+    },
+
+    /// Both relation arguments select the same canonical source file.
+    #[error("relation requires two distinct source files: {0}")]
+    RelationDuplicateSource(PathBuf),
+
     /// A manifest project path is not a directory.
     #[error("project path is not a directory: {0}")]
     ProjectPathNotDirectory(PathBuf),

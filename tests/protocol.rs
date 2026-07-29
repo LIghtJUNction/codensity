@@ -5,8 +5,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::{Context, Result};
 use codensity::{
-    CodensityError, LANGUAGES, PROTOCOL_ID, analyze_path, build_database, initialize_project,
-    language_for_path, render_text,
+    CodensityError, LANGUAGES, PROTOCOL_ID, RELATION_PROTOCOL_ID, analyze_path, build_database,
+    initialize_project, language_for_path, relate_paths, render_text,
 };
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -472,6 +472,63 @@ fn cli_analyze_should_use_literal_src_as_default_path() -> Result<()> {
         "status: {:?}, stderr: {}",
         output.status,
         String::from_utf8_lossy(&output.stderr)
+    );
+    Ok(())
+}
+
+#[test]
+fn relation_should_have_a_stable_json_schema_and_cli_output() -> Result<()> {
+    let fixture = Fixture::new("relation-json")?;
+    let repeated = b"fn shared_pattern() { let value = 42; }\n".repeat(512);
+    fixture.write("src/z.rs", &repeated)?;
+    fixture.write("src/a.rs", &repeated)?;
+    let root = fixture.path.to_str().context("fixture path is not UTF-8")?;
+
+    let result = relate_paths(&fixture.path, Path::new("src/z.rs"), Path::new("src/a.rs"))?;
+    let library_value = serde_json::to_value(&result)?;
+    let output = Command::new(env!("CARGO_BIN_EXE_codensity"))
+        .args([
+            "relation", "--root", root, "src/a.rs", "src/z.rs", "--format", "json",
+        ])
+        .output()?;
+    let cli_value: Value = serde_json::from_slice(&output.stdout)?;
+    let keys: std::collections::BTreeSet<_> = library_value
+        .as_object()
+        .context("relation result must be an object")?
+        .keys()
+        .map(String::as_str)
+        .collect();
+
+    assert_eq!(library_value, cli_value);
+    assert!(
+        output.status.success()
+            && cli_value["schema_version"] == 1
+            && cli_value["protocol"] == RELATION_PROTOCOL_ID
+            && cli_value["first"]["path"] == "src/a.rs"
+            && cli_value["second"]["path"] == "src/z.rs"
+            && cli_value["adjusted_cross_stream_gain_bytes"]
+                .as_i64()
+                .is_some_and(|value| value > 0)
+            && cli_value["adjusted_cross_stream_gain_ratio"].is_number()
+    );
+    assert_eq!(
+        keys,
+        [
+            "adjusted_cross_stream_gain_bytes",
+            "adjusted_cross_stream_gain_ratio",
+            "codensity_version",
+            "combined",
+            "empty_frame_bytes",
+            "first",
+            "interpretation",
+            "protocol",
+            "raw_cross_stream_gain_bytes",
+            "schema_version",
+            "second",
+            "zstd_version",
+        ]
+        .into_iter()
+        .collect()
     );
     Ok(())
 }

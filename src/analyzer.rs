@@ -9,7 +9,7 @@ use crate::error::{CodensityError, Result};
 use crate::language::{LANGUAGES, language_for_path};
 use crate::model::{
     ANALYSIS_SCHEMA_VERSION, AnalysisResult, LEDGER_SCHEMA_VERSION, LanguageResult, MetricResult,
-    PROTOCOL_ID,
+    PROTOCOL_ID, RELATION_PROTOCOL_ID, RELATION_SCHEMA_VERSION, RelationFileResult, RelationResult,
 };
 use crate::profile::build_profile;
 use crate::{CODENSITY_VERSION, zstd_version};
@@ -28,7 +28,7 @@ const EXCLUDED_DIRECTORIES: &[&str] = &[
     ".cache",
 ];
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) struct SourceFile {
     pub(crate) path: PathBuf,
     pub(crate) relative: String,
@@ -93,6 +93,123 @@ pub fn analyze_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
 /// ledgers remain byte-for-byte reproducible.
 pub fn analyze_ledger_path(path: &Path, input_label: &str) -> Result<AnalysisResult> {
     analyze(path, input_label, false)
+}
+
+/// Measures cross-stream regularity for exactly two included source files.
+pub fn relate_paths(root: &Path, first: &Path, second: &Path) -> Result<RelationResult> {
+    if !root.exists() {
+        return Err(CodensityError::InputNotFound(root.to_path_buf()));
+    }
+    if !root.is_dir() {
+        return Err(CodensityError::RelationRootNotDirectory(root.to_path_buf()));
+    }
+    let first_relative = relation_relative_path(first)?;
+    let second_relative = relation_relative_path(second)?;
+    if first_relative == second_relative {
+        return Err(CodensityError::RelationDuplicateSource(first.to_path_buf()));
+    }
+
+    let (files, _) = scan(root)?;
+    let mut selected = [
+        select_relation_source(root, &files, first, &first_relative)?,
+        select_relation_source(root, &files, second, &second_relative)?,
+    ];
+    selected.sort_by(|left, right| left.relative.as_bytes().cmp(right.relative.as_bytes()));
+
+    let first_metric = stream_metric(root, std::slice::from_ref(&selected[0]), None)?;
+    let second_metric = stream_metric(root, std::slice::from_ref(&selected[1]), None)?;
+    let combined = stream_metric(root, &selected, None)?;
+    let empty_frame_bytes = stream_metric(root, &[], None)?.compressed_bytes;
+    let independent_sum = first_metric
+        .compressed_bytes
+        .checked_add(second_metric.compressed_bytes)
+        .ok_or_else(|| CodensityError::CounterOverflow(root.to_path_buf()))?;
+    let raw_cross_stream_gain_bytes =
+        signed_difference(independent_sum, combined.compressed_bytes, root)?;
+    let adjusted_cross_stream_gain_bytes = raw_cross_stream_gain_bytes
+        .checked_sub(
+            i64::try_from(empty_frame_bytes)
+                .map_err(|_| CodensityError::CounterOverflow(root.to_path_buf()))?,
+        )
+        .ok_or_else(|| CodensityError::CounterOverflow(root.to_path_buf()))?;
+    let independent_payload_bytes = independent_sum.saturating_sub(
+        empty_frame_bytes
+            .checked_mul(2)
+            .ok_or_else(|| CodensityError::CounterOverflow(root.to_path_buf()))?,
+    );
+
+    Ok(RelationResult {
+        schema_version: RELATION_SCHEMA_VERSION,
+        codensity_version: CODENSITY_VERSION.to_owned(),
+        zstd_version: zstd_version().to_owned(),
+        protocol: RELATION_PROTOCOL_ID.to_owned(),
+        first: relation_file_result(&selected[0], first_metric),
+        second: relation_file_result(&selected[1], second_metric),
+        combined,
+        empty_frame_bytes,
+        raw_cross_stream_gain_bytes,
+        adjusted_cross_stream_gain_bytes,
+        adjusted_cross_stream_gain_ratio: (independent_payload_bytes != 0).then_some(
+            adjusted_cross_stream_gain_bytes as f64 / independent_payload_bytes as f64,
+        ),
+        interpretation: "Measures shared byte-level patterns after fixed frame overhead; it is not structural coupling, dependency direction, causality, or a quality score.".to_owned(),
+    })
+}
+
+fn relation_relative_path(path: &Path) -> Result<String> {
+    if path.is_absolute() {
+        return Err(CodensityError::RelationPathOutsideRoot(path.to_path_buf()));
+    }
+    let mut normalized = String::new();
+    for component in path.components() {
+        let Component::Normal(value) = component else {
+            return Err(CodensityError::RelationPathOutsideRoot(path.to_path_buf()));
+        };
+        let value = value
+            .to_str()
+            .ok_or_else(|| CodensityError::RelationPathOutsideRoot(path.to_path_buf()))?;
+        if !normalized.is_empty() {
+            normalized.push('/');
+        }
+        normalized.push_str(value);
+    }
+    if normalized.is_empty() {
+        return Err(CodensityError::RelationPathOutsideRoot(path.to_path_buf()));
+    }
+    Ok(normalized)
+}
+
+fn select_relation_source(
+    root: &Path,
+    files: &[SourceFile],
+    requested: &Path,
+    relative: &str,
+) -> Result<SourceFile> {
+    files
+        .iter()
+        .find(|file| file.relative == relative)
+        .cloned()
+        .ok_or_else(|| CodensityError::RelationSourceUnavailable {
+            root: root.to_path_buf(),
+            path: requested.to_path_buf(),
+        })
+}
+
+fn relation_file_result(file: &SourceFile, metric: MetricResult) -> RelationFileResult {
+    RelationFileResult {
+        path: file.relative.clone(),
+        language: LANGUAGES[file.language_index].name.to_owned(),
+        metric,
+    }
+}
+
+fn signed_difference(left: u64, right: u64, root: &Path) -> Result<i64> {
+    let left =
+        i64::try_from(left).map_err(|_| CodensityError::CounterOverflow(root.to_path_buf()))?;
+    let right =
+        i64::try_from(right).map_err(|_| CodensityError::CounterOverflow(root.to_path_buf()))?;
+    left.checked_sub(right)
+        .ok_or_else(|| CodensityError::CounterOverflow(root.to_path_buf()))
 }
 
 fn analyze(path: &Path, input_label: &str, include_profile: bool) -> Result<AnalysisResult> {
@@ -292,4 +409,97 @@ fn stream_metric(
         savings,
         sha256: format!("{:x}", hasher.finalize()),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+    use std::path::Path;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    use super::relate_paths;
+    use crate::{CodensityError, RELATION_PROTOCOL_ID};
+
+    struct Fixture {
+        path: std::path::PathBuf,
+    }
+
+    impl Fixture {
+        fn new() -> Self {
+            let nonce = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("system time is after epoch")
+                .as_nanos();
+            let path = std::env::temp_dir().join(format!("codensity-relation-{nonce}"));
+            fs::create_dir_all(&path).expect("create fixture root");
+            Self { path }
+        }
+
+        fn write(&self, relative: &str, contents: &[u8]) {
+            let path = self.path.join(relative);
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent).expect("create fixture parent");
+            }
+            fs::write(path, contents).expect("write fixture file");
+        }
+    }
+
+    impl Drop for Fixture {
+        fn drop(&mut self) {
+            fs::remove_dir_all(&self.path).expect("remove fixture root");
+        }
+    }
+
+    #[test]
+    fn relation_is_order_independent_and_reports_shared_patterns() {
+        let fixture = Fixture::new();
+        let repeated = b"fn repeated_pattern() { let value = 42; }\n".repeat(512);
+        fixture.write("z.rs", &repeated);
+        fixture.write("a.rs", &repeated);
+
+        let forward = relate_paths(&fixture.path, Path::new("z.rs"), Path::new("a.rs"))
+            .expect("measure relation");
+        let reverse = relate_paths(&fixture.path, Path::new("a.rs"), Path::new("z.rs"))
+            .expect("measure reversed relation");
+
+        assert_eq!(forward, reverse);
+        assert_eq!(forward.protocol, RELATION_PROTOCOL_ID);
+        assert_eq!(forward.first.path, "a.rs");
+        assert_eq!(forward.second.path, "z.rs");
+        assert!(forward.adjusted_cross_stream_gain_bytes > 0);
+        assert!(forward.adjusted_cross_stream_gain_ratio.is_some());
+        let json = serde_json::to_value(&forward).expect("serialize relation result");
+        assert_eq!(json["protocol"], RELATION_PROTOCOL_ID);
+        assert!(json["first"]["compressed_bytes"].is_number());
+    }
+
+    #[test]
+    fn relation_rejects_outside_duplicate_and_unavailable_sources() {
+        let fixture = Fixture::new();
+        fixture.write("kept.rs", b"fn kept() {}\n");
+        fixture.write("ignored.rs", b"fn ignored() {}\n");
+        fixture.write("data.txt", b"not source\n");
+        fixture.write(".gitignore", b"ignored.rs\n");
+
+        assert!(matches!(
+            relate_paths(
+                &fixture.path,
+                Path::new("../outside.rs"),
+                Path::new("kept.rs")
+            ),
+            Err(CodensityError::RelationPathOutsideRoot(_))
+        ));
+        assert!(matches!(
+            relate_paths(&fixture.path, Path::new("kept.rs"), Path::new("kept.rs")),
+            Err(CodensityError::RelationDuplicateSource(_))
+        ));
+        assert!(matches!(
+            relate_paths(&fixture.path, Path::new("ignored.rs"), Path::new("kept.rs")),
+            Err(CodensityError::RelationSourceUnavailable { .. })
+        ));
+        assert!(matches!(
+            relate_paths(&fixture.path, Path::new("data.txt"), Path::new("kept.rs")),
+            Err(CodensityError::RelationSourceUnavailable { .. })
+        ));
+    }
 }

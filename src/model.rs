@@ -10,6 +10,10 @@ pub const DATABASE_SCHEMA_VERSION: u32 = 1;
 pub const PROTOCOL_ID: &str = "codensity-zstd19-concat-v1";
 /// Stable identifier for the multi-signal profile rules.
 pub const PROFILE_PROTOCOL_ID: &str = "codensity-information-profile-v2";
+/// Schema version for the two-file cross-stream relation result.
+pub const RELATION_SCHEMA_VERSION: u32 = 1;
+/// Stable identifier for the two-file cross-stream relation rules.
+pub const RELATION_PROTOCOL_ID: &str = "codensity-cross-stream-relation-v1";
 
 /// Metrics for one concatenated byte stream.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -237,6 +241,47 @@ pub struct InformationProfile {
     pub interpretation: String,
 }
 
+/// One selected source file in a cross-stream relation result.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RelationFileResult {
+    /// Normalized root-relative POSIX path.
+    pub path: String,
+    /// Canonical language name from the protocol table.
+    pub language: String,
+    /// Independent zstd-19 stream metric.
+    #[serde(flatten)]
+    pub metric: MetricResult,
+}
+
+/// Deterministic two-file cross-stream regularity signal.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RelationResult {
+    /// Relation result schema version.
+    pub schema_version: u32,
+    /// Codensity package version.
+    pub codensity_version: String,
+    /// Linked zstd runtime/library version.
+    pub zstd_version: String,
+    /// Relation protocol identifier.
+    pub protocol: String,
+    /// First selected file after canonical root-relative path sorting.
+    pub first: RelationFileResult,
+    /// Second selected file after canonical root-relative path sorting.
+    pub second: RelationFileResult,
+    /// Metric for the canonical concatenation of first then second.
+    pub combined: MetricResult,
+    /// Byte size of one empty zstd frame under the pinned implementation.
+    pub empty_frame_bytes: u64,
+    /// `C(first) + C(second) - C(combined)`, including one removed frame.
+    pub raw_cross_stream_gain_bytes: i64,
+    /// Raw gain less the one-frame baseline advantage.
+    pub adjusted_cross_stream_gain_bytes: i64,
+    /// Adjusted gain divided by independent compressed payload bytes, when positive.
+    pub adjusted_cross_stream_gain_ratio: Option<f64>,
+    /// Interpretation boundary for this non-structural signal.
+    pub interpretation: String,
+}
+
 /// Schema-v1 database manifest.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -415,4 +460,30 @@ pub fn render_text(result: &AnalysisResult) -> String {
         }
     }
     output
+}
+
+/// Renders a two-file cross-stream relation as deterministic concise text.
+#[must_use]
+pub fn render_relation(result: &RelationResult) -> String {
+    format!(
+        "schema: {}\ncodensity: {}\nzstd: {}\nprotocol: {}\nfirst: {} ({}) compressed={}\nsecond: {} ({}) compressed={}\ncombined: {}\nempty_frame: {}\nraw_cross_stream_gain: {}\nadjusted_cross_stream_gain: {}\nadjusted_cross_stream_gain_ratio: {}\ninterpretation: {}\n",
+        result.schema_version,
+        result.codensity_version,
+        result.zstd_version,
+        result.protocol,
+        result.first.path,
+        result.first.language,
+        result.first.metric.compressed_bytes,
+        result.second.path,
+        result.second.language,
+        result.second.metric.compressed_bytes,
+        result.combined.compressed_bytes,
+        result.empty_frame_bytes,
+        result.raw_cross_stream_gain_bytes,
+        result.adjusted_cross_stream_gain_bytes,
+        result
+            .adjusted_cross_stream_gain_ratio
+            .map_or_else(|| "null".to_owned(), |value| format!("{value:.6}")),
+        result.interpretation,
+    )
 }
