@@ -35,6 +35,44 @@ or benchmark claim. Record the CLI's `schema_version`, `protocol`, Codensity
 version, zstd version, raw bytes, compressed bytes, ratio, and source-stream
 SHA-256 with the result.
 
+## Produce Evidence for Optimization, Not a Quality Label
+
+For a repository-level optimization review, build the checked-out binary and
+measure the repository root at file and function granularity:
+
+```bash
+"$codensity_bin" analyze . --granularity function --format json > /tmp/codensity-analysis.json
+```
+
+Extract and report all of the following before suggesting an optimization:
+
+1. Record whole-stream provenance and metrics: schema, protocol, versions,
+   source bytes, compressed bytes, ratio, SHA-256, language mix, and excluded
+   source count.
+2. Inspect profile signals separately: cross-compressor agreement, entropy,
+   duplicate-window coverage, noise flags, file-size concentration, and the
+   language baseline sample count. Treat baselines with fewer than five
+   projects as directional only.
+3. Rank files by source bytes and inspect only sufficiently large files before
+   discussing compression ratios. Do not rank tiny files or functions by ratio.
+4. Group parser-backed functions by kind and count `small_sample` records.
+   Exclude or clearly flag functions below the fixed variance threshold when
+   comparing function ratios.
+5. Use `relation` or `compare` only to find byte-pattern candidates. Pair each
+   candidate with CodeGraph import/call paths, API ownership, shared types,
+   I/O ownership, and error propagation before calling it coupling or proposing
+   a refactor.
+6. Separate the final report into facts, bounded inferences, optimization
+   candidates, and non-claims. Include a negative result when there is no
+   evidence for a change.
+
+Never classify a repository as high- or low-quality from a compression ratio,
+an information-profile score, a similarity gain, or a function metric. Quality
+requires evidence about required behavior, security, reliability,
+maintainability, performance, and operational fitness. Consult
+`references/code-quality-evidence.md` for the quality evidence matrix and
+review order.
+
 ## Initialize Safely
 
 Run:
