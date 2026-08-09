@@ -5,9 +5,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::{Context, Result};
 use codensity::{
-    CodensityError, LANGUAGES, PROTOCOL_ID, RELATION_PROTOCOL_ID, analyze_granular_path,
-    analyze_path, build_database, initialize_project, language_for_path, load_manifest,
-    relate_paths, render_text,
+    CacheStatus, CodensityError, LANGUAGES, PROTOCOL_ID, RELATION_PROTOCOL_ID,
+    analyze_granular_path, analyze_path, build_database, clean_project, initialize_project,
+    initialize_project_with_status, language_for_path, load_manifest, relate_paths, render_text,
 };
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -659,6 +659,138 @@ fn init_should_create_a_managed_deterministic_snapshot() -> Result<()> {
             && first_snapshot == second_snapshot
             && snapshot["overall"]["sha256"] == second.overall.sha256
             && fs::read(fixture.path.join(".codensity/.gitignore"))? == b"*\n!.gitignore\n"
+    );
+    Ok(())
+}
+
+#[test]
+fn init_cache_reuses_only_an_unchanged_recognized_source_manifest() -> Result<()> {
+    let fixture = Fixture::new("init-cache")?;
+    fixture.write("src/main.rs", b"fn main() {}\n")?;
+
+    let first = initialize_project_with_status(&fixture.path, false)?;
+    let snapshot_path = fixture.path.join(".codensity/analysis.json");
+    let first_snapshot = fs::read(&snapshot_path)?;
+    let second = initialize_project_with_status(&fixture.path, false)?;
+    fixture.write("src/main.rs", b"fn main() { println!(\"changed\"); }\n")?;
+    let third = initialize_project_with_status(&fixture.path, false)?;
+
+    assert!(
+        first.cache_status == CacheStatus::Miss
+            && second.cache_status == CacheStatus::Hit
+            && third.cache_status == CacheStatus::Miss
+            && first_snapshot != fs::read(snapshot_path)?
+    );
+    Ok(())
+}
+
+#[test]
+fn malformed_regular_cache_is_a_safe_init_miss() -> Result<()> {
+    let fixture = Fixture::new("init-malformed-cache")?;
+    fixture.write("main.rs", b"fn main() {}\n")?;
+    initialize_project_with_status(&fixture.path, false)?;
+    fs::write(fixture.path.join(".codensity/cache-v1.json"), b"not json")?;
+
+    let refreshed = initialize_project_with_status(&fixture.path, false)?;
+    let repaired: Value =
+        serde_json::from_slice(&fs::read(fixture.path.join(".codensity/cache-v1.json"))?)?;
+
+    assert!(refreshed.cache_status == CacheStatus::Miss && repaired["schema_version"] == 1);
+    Ok(())
+}
+
+#[test]
+fn clean_removes_only_complete_known_codensity_state() -> Result<()> {
+    let fixture = Fixture::new("clean-success")?;
+    fixture.write("main.rs", b"fn main() {}\n")?;
+    initialize_project_with_status(&fixture.path, false)?;
+
+    clean_project(&fixture.path, false)?;
+
+    assert!(!fixture.path.join(".codensity").exists());
+    Ok(())
+}
+
+#[test]
+fn clean_refuses_missing_or_unknown_state_without_deleting_it() -> Result<()> {
+    let missing = Fixture::new("clean-missing")?;
+    let missing_error = clean_project(&missing.path, false);
+    let fixture = Fixture::new("clean-unknown")?;
+    fixture.write("main.rs", b"fn main() {}\n")?;
+    initialize_project_with_status(&fixture.path, false)?;
+    fixture.write(".codensity/keep-me", b"user data")?;
+    let unknown_error = clean_project(&fixture.path, false);
+
+    assert!(
+        matches!(missing_error, Err(CodensityError::CleanStateNotFound(_)))
+            && matches!(
+                unknown_error,
+                Err(CodensityError::UnknownCodensityStateContent(_))
+            )
+            && fixture.path.join(".codensity/keep-me").is_file()
+            && fixture.path.join(".codensity/analysis.json").is_file()
+    );
+    Ok(())
+}
+
+#[test]
+fn clean_refuses_an_empty_unowned_codensity_directory() -> Result<()> {
+    let fixture = Fixture::new("clean-empty-unowned")?;
+    fs::create_dir(fixture.path.join(".codensity"))?;
+
+    let result = clean_project(&fixture.path, false);
+
+    assert!(
+        matches!(result, Err(CodensityError::UnknownCodensityStateContent(_)))
+            && fixture.path.join(".codensity").is_dir()
+            && fs::read_dir(fixture.path.join(".codensity"))?
+                .next()
+                .is_none()
+    );
+    Ok(())
+}
+
+#[cfg(unix)]
+#[test]
+fn clean_refuses_state_symlinks_without_following_them() -> Result<()> {
+    use std::os::unix::fs::symlink;
+
+    let fixture = Fixture::new("clean-symlink")?;
+    fixture.write("main.rs", b"fn main() {}\n")?;
+    initialize_project_with_status(&fixture.path, false)?;
+    let cache = fixture.path.join(".codensity/cache-v1.json");
+    fs::remove_file(&cache)?;
+    let outside = fixture.path.join("outside-cache");
+    fs::write(&outside, b"outside")?;
+    symlink(&outside, &cache)?;
+
+    let result = clean_project(&fixture.path, false);
+
+    assert!(
+        matches!(result, Err(CodensityError::InvalidCodensityState(_)))
+            && outside.is_file()
+            && fixture.path.join(".codensity/analysis.json").is_file()
+    );
+    Ok(())
+}
+
+#[test]
+fn default_cli_text_is_a_concise_visual_summary() -> Result<()> {
+    let fixture = Fixture::new("visual-text")?;
+    fixture.write("main.rs", b"fn main() {}\n")?;
+    let path = fixture.path.to_string_lossy().into_owned();
+
+    let output = Command::new(env!("CARGO_BIN_EXE_codensity"))
+        .args(["analyze", path.as_str()])
+        .output()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    assert!(
+        output.status.success()
+            && stdout.contains("Codensity summary")
+            && stdout.contains('[')
+            && stdout.contains("information_density:")
+            && !stdout.contains("zstd_curve:")
     );
     Ok(())
 }

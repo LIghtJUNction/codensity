@@ -24,7 +24,10 @@ pub use analyzer::{
 pub use comparison::{analyze_github_repository, compare_github_repositories};
 pub use database::{build_database, load_manifest};
 pub use error::{CodensityError, Result};
-pub use init::initialize_project;
+pub use init::{
+    CacheStatus, InitializationResult, clean_project, initialize_project,
+    initialize_project_with_status,
+};
 pub use language::{LANGUAGES, LanguageSpec, language_for_path};
 pub use model::{
     ANALYSIS_SCHEMA_VERSION, AnalysisResult, CompressionCurvePoint, CompressionMeasurement,

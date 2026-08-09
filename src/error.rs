@@ -185,6 +185,31 @@ pub enum CodensityError {
     #[error("refusing to initialize filesystem root or home directory without --force: {0}")]
     InitializationRequiresForce(PathBuf),
 
+    /// Cleaning a filesystem root or home directory needs explicit confirmation.
+    #[error("refusing to clean filesystem root or home directory without --force: {0}")]
+    CleanRequiresForce(PathBuf),
+
+    /// No managed Codensity state directory exists for a clean request.
+    #[error("no managed Codensity state exists at: {0}")]
+    CleanStateNotFound(PathBuf),
+
+    /// A known Codensity state path is not a regular file.
+    #[error("Codensity state path must be a regular file, not a link or directory: {0}")]
+    InvalidCodensityState(PathBuf),
+
+    /// A managed directory contains an entry not owned by Codensity.
+    #[error("refusing to clean unknown Codensity state content: {0}")]
+    UnknownCodensityStateContent(PathBuf),
+
+    /// A Codensity state path could not be read or removed safely.
+    #[error("failed to access Codensity state path `{path}`: {source}")]
+    CodensityStateIo {
+        /// State path.
+        path: PathBuf,
+        /// Underlying filesystem error.
+        source: std::io::Error,
+    },
+
     /// A filesystem walker could not inspect the input.
     #[error("failed to walk input `{root}`: {source}")]
     Walk {
