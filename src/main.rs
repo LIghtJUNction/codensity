@@ -4,8 +4,8 @@ use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
 use codensity::{
     analyze_github_repository, analyze_granular_path, analyze_ledger_path, analyze_path,
-    build_database, compare_github_repositories, initialize_project, relate_paths,
-    render_granular_analysis, render_relation, render_repository_analysis,
+    build_database, clean_project, compare_github_repositories, initialize_project_with_status,
+    relate_paths, render_granular_analysis, render_relation, render_repository_analysis,
     render_repository_comparison, render_text, safe_input_label, update_database,
 };
 
@@ -24,6 +24,15 @@ enum Command {
         #[arg(default_value = ".")]
         path: PathBuf,
         /// Allow filesystem-root or home-directory initialization.
+        #[arg(long)]
+        force: bool,
+    },
+    /// Remove only fully recognized project-local Codensity state.
+    Clean {
+        /// Project directory whose state should be removed.
+        #[arg(default_value = ".")]
+        path: PathBuf,
+        /// Allow filesystem-root or home-directory cleanup.
         #[arg(long)]
         force: bool,
     },
@@ -116,11 +125,17 @@ fn main() -> Result<()> {
 fn run(command: Command) -> Result<()> {
     match command {
         Command::Init { path, force } => {
-            initialize_project(&path, force)?;
+            let initialized = initialize_project_with_status(&path, force)?;
+            print!("{}", render_text(&initialized.analysis));
             println!(
                 "initialized: {}",
                 path.join(".codensity/analysis.json").display()
             );
+            println!("cache: {}", initialized.cache_status.as_str());
+        }
+        Command::Clean { path, force } => {
+            clean_project(&path, force)?;
+            println!("cleaned: {}", path.join(".codensity").display());
         }
         Command::Analyze {
             input,

@@ -499,119 +499,53 @@ pub struct DatabaseProject {
 /// Renders an analysis as deterministic concise text.
 #[must_use]
 pub fn render_text(result: &AnalysisResult) -> String {
+    let ratio = result.overall.ratio.unwrap_or(0.0);
+    let savings = result.overall.savings.unwrap_or(0.0);
     let mut output = format!(
-        "schema: {}\ncodensity: {}\nzstd: {}\nprotocol: {}\ninput: {}\nfiles: {}\nskipped: {}\noriginal: {}\ncompressed: {}\nratio: {:.6}\nsavings: {:.6}\nsha256: {}\nlanguages:\n",
-        result.schema_version,
-        result.codensity_version,
-        result.zstd_version,
-        result.protocol,
+        "Codensity summary · {}\ncompression: {} {:.2}% saved · {} → {} bytes\nfiles: {} recognized · {} skipped · sha256: {}\n",
         result.input_label,
-        result.overall.file_count,
-        result.skipped_file_count,
+        visual_bar(savings),
+        savings * 100.0,
         result.overall.original_bytes,
         result.overall.compressed_bytes,
-        result.overall.ratio.unwrap_or(0.0),
-        result.overall.savings.unwrap_or(0.0),
+        result.overall.file_count,
+        result.skipped_file_count,
         result.overall.sha256,
     );
-    for language in &result.languages {
-        let ratio = language
-            .metric
-            .ratio
-            .map_or_else(|| "null".to_owned(), |value| format!("{value:.6}"));
-        let savings = language
-            .metric
-            .savings
-            .map_or_else(|| "null".to_owned(), |value| format!("{value:.6}"));
-        output.push_str(&format!(
-            "  {}: files={} original={} compressed={} ratio={} savings={} sha256={}\n",
-            language.language,
-            language.metric.file_count,
-            language.metric.original_bytes,
-            language.metric.compressed_bytes,
-            ratio,
-            savings,
-            language.metric.sha256,
-        ));
-    }
     if let Some(profile) = &result.profile {
-        output.push_str("profile:\n");
-        output.push_str(&format!("  protocol: {}\n", profile.protocol));
         output.push_str(&format!(
-            "  information_density: {:.2}\n  confidence: {}\n",
-            profile.score.information_density, profile.score.confidence
+            "information_density: {:.2}/100 · confidence: {} · template risk: {}\n",
+            profile.score.information_density,
+            profile.score.confidence,
+            profile.score.template_repetition_risk,
         ));
-        output.push_str(&format!(
-            "  components: compression={:.2} entropy={:.2} uniqueness={:.2} signal={:.2} distribution={:.2}\n",
-            profile.score.compression,
-            profile.score.entropy,
-            profile.score.uniqueness,
-            profile.score.signal,
-            profile.score.distribution
-        ));
-        output.push_str("  compression:\n");
-        for measurement in &profile.compression.algorithms {
-            output.push_str(&format!(
-                "    {} ({}): bytes={} ratio={:.6}\n",
-                measurement.algorithm,
-                measurement.configuration,
-                measurement.compressed_bytes,
-                measurement.ratio
-            ));
-        }
-        output.push_str(&format!(
-            "    consensus_ratio: {:.6}\n    ratio_spread: {:.6}\n",
-            profile.compression.consensus_ratio, profile.compression.ratio_spread
-        ));
-        output.push_str("  zstd_curve:\n");
-        for point in &profile.compression.zstd_curve {
-            output.push_str(&format!(
-                "    level {}: bytes={} ratio={:.6}\n",
-                point.level, point.compressed_bytes, point.ratio
-            ));
-        }
-        output.push_str(&format!(
-            "  entropy: {:.4} bits/byte (high_entropy={:.2}%)\n",
-            profile.entropy.bits_per_byte,
-            profile.entropy.high_entropy_ratio * 100.0
-        ));
-        output.push_str(&format!(
-            "  duplication: {:.2}% ({})\n",
-            profile.duplication.duplicate_ratio * 100.0,
-            profile.duplication.detector
-        ));
-        output.push_str(&format!(
-            "  noise: {:.2}%\n  structure: largest={:.2}% top10={:.2}% gini={:.4} long_tail={}\n",
-            profile.noise.noise_ratio * 100.0,
-            profile.structure.largest_file_share * 100.0,
-            profile.structure.top_10_file_share * 100.0,
-            profile.structure.gini,
-            profile.structure.long_tail
-        ));
-        output.push_str(&format!(
-            "  template_repetition_risk: {}\n",
-            profile.score.template_repetition_risk
-        ));
-        if !profile.baselines.is_empty() {
-            output.push_str("  baselines:\n");
-            for baseline in &profile.baselines {
-                let percentile = baseline.percentile.map_or_else(
-                    || "insufficient-samples".to_owned(),
-                    |value| format!("{value:.2}"),
-                );
-                output.push_str(&format!(
-                    "    {}: bytes={} ratio={:.6} median={:.6} samples={} percentile={}\n",
-                    baseline.language,
-                    baseline.source_bytes,
-                    baseline.project_ratio,
-                    baseline.median_ratio,
-                    baseline.sample_count,
-                    percentile
-                ));
-            }
-        }
     }
+    output.push_str("languages:\n");
+    for language in result
+        .languages
+        .iter()
+        .filter(|language| language.metric.file_count > 0)
+    {
+        let language_savings = language.metric.savings.unwrap_or(0.0);
+        output.push_str(&format!(
+            "  {:<16} {} {:>6.2}% · {} files\n",
+            language.language,
+            visual_bar(language_savings),
+            language_savings * 100.0,
+            language.metric.file_count,
+        ));
+    }
+    output.push_str(&format!(
+        "ratio: {ratio:.6}\nschema: {}\ncodensity: {}\nzstd: {}\nprotocol: {}\n",
+        result.schema_version, result.codensity_version, result.zstd_version, result.protocol,
+    ));
     output
+}
+
+fn visual_bar(value: f64) -> String {
+    const WIDTH: usize = 12;
+    let filled = (value.clamp(0.0, 1.0) * WIDTH as f64).round() as usize;
+    format!("[{}{}]", "█".repeat(filled), "·".repeat(WIDTH - filled))
 }
 
 /// Renders a two-file cross-stream relation as deterministic concise text.
