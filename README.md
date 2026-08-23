@@ -14,9 +14,9 @@
 
 ```bash
 cargo install codensity --locked
-
-# 创建或刷新项目本地快照。
-codensity init .
+./install.sh                 # 同上，不改 shell 配置
+./install.sh --from-source   # 安装当前仓库
+codensity init .             # 创建或刷新项目本地快照
 
 # 仅删除 Codensity 自己的受管理状态。
 codensity clean .

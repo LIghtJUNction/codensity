@@ -483,6 +483,72 @@ fn text_rendering_should_be_byte_identical_for_repeated_results() -> Result<()> 
     Ok(())
 }
 
+fn install_script() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("install.sh")
+}
+
+fn run_install(args: &[&str]) -> Result<std::process::Output> {
+    let mut command = Command::new("/bin/bash");
+    command.arg(install_script()).args(args);
+    command.env_remove("CODENSITY_VERSION");
+    command.env_remove("CARGO_INSTALL_ROOT");
+    command
+        .output()
+        .with_context(|| format!("run install.sh {}", args.join(" ")))
+}
+
+#[test]
+fn install_script_should_print_cargo_and_refuse_missing_toolchain() -> Result<()> {
+    let script = install_script();
+    let syntax = Command::new("/bin/bash").arg("-n").arg(&script).output()?;
+    assert!(
+        syntax.status.success(),
+        "{}",
+        String::from_utf8_lossy(&syntax.stderr)
+    );
+
+    let help = run_install(&["--help"])?;
+    let help_text = String::from_utf8_lossy(&help.stdout);
+    assert!(
+        help.status.success()
+            && help_text.contains("cargo install")
+            && help_text.contains("--from-source")
+    );
+    assert!(!run_install(&["--wat"])?.status.success());
+    assert_eq!(
+        String::from_utf8_lossy(&run_install(&["--dry-run"])?.stdout).trim(),
+        "cargo install --locked codensity"
+    );
+
+    let mut pinned = Command::new("/bin/bash");
+    pinned
+        .arg(&script)
+        .arg("--dry-run")
+        .env("CODENSITY_VERSION", "0.5.0")
+        .env_remove("CARGO_INSTALL_ROOT");
+    assert_eq!(
+        String::from_utf8_lossy(&pinned.output()?.stdout).trim(),
+        "cargo install --locked codensity --version 0.5.0"
+    );
+    assert_eq!(
+        String::from_utf8_lossy(&run_install(&["--from-source", "--dry-run"])?.stdout).trim(),
+        format!(
+            "cargo install --locked --path {}",
+            script.parent().unwrap().display()
+        )
+    );
+
+    let missing = Command::new("/bin/bash")
+        .arg(&script)
+        .env("PATH", "")
+        .output()?;
+    assert!(
+        !missing.status.success()
+            && String::from_utf8_lossy(&missing.stderr).contains("cargo is required")
+    );
+    Ok(())
+}
+
 #[test]
 fn cli_analyze_should_use_the_current_directory_as_default_path() -> Result<()> {
     let fixture = Fixture::new("cli-default")?;
