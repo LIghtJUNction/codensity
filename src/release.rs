@@ -169,7 +169,7 @@ mod tests {
     use std::sync::atomic::{AtomicU64, Ordering};
 
     use super::{API_ROOT, RELEASE_ASSET, ReleaseFetcher, update_database_with};
-    use crate::{CodensityError, Result as CodensityResult};
+    use crate::{CodensityError, PROTOCOL_ID, Result as CodensityResult};
     use sha2::{Digest, Sha256};
 
     const RELEASE_REPOSITORY: &str = "LIghtJUNction/codensity";
@@ -267,14 +267,9 @@ mod tests {
     }
 
     fn database_bytes() -> Vec<u8> {
-        br#"{
-  "schema_version": 1,
-  "codensity_version": "0.1.0",
-  "zstd_version": "1.5.7",
-  "protocol": "codensity-zstd19-concat-v1",
-  "projects": []
-}
-"#
-        .to_vec()
+        format!(
+            "{{\n  \"schema_version\": 1,\n  \"codensity_version\": \"0.1.0\",\n  \"zstd_version\": \"1.5.7\",\n  \"protocol\": \"{PROTOCOL_ID}\",\n  \"projects\": []\n}}\n"
+        )
+        .into_bytes()
     }
 }

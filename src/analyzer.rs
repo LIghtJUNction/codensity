@@ -76,7 +76,7 @@ pub fn safe_input_label(path: &Path) -> Result<String> {
         .ok_or_else(|| CodensityError::InvalidRelativePath(path.to_path_buf()))
 }
 
-/// Analyzes an input with protocol `codensity-zstd19-concat-v1`.
+/// Analyzes an input with protocol `codensity-zstd19-concat-v2`.
 ///
 /// The implementation retains only selected path metadata. File contents and
 /// compressed output flow through bounded buffers.

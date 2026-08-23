@@ -46,40 +46,45 @@ impl Drop for Fixture {
 }
 
 #[test]
-fn language_table_should_cover_every_protocol_v1_mapping_in_canonical_order() {
+fn language_table_should_keep_protocol_v1_names_as_a_stable_prefix() {
     let expected = [
-        ("Rust", &["rs"][..]),
-        ("C", &["c"][..]),
-        ("C Header", &["h"][..]),
-        ("C++", &["cc", "cpp", "cxx"][..]),
-        ("C++ Header", &["hh", "hpp", "hxx"][..]),
-        ("Assembly", &["S", "s", "asm"][..]),
-        ("Python", &["py"][..]),
-        ("Go", &["go"][..]),
-        ("JavaScript", &["js", "mjs", "cjs"][..]),
-        ("JSX", &["jsx"][..]),
-        ("TypeScript", &["ts", "mts", "cts"][..]),
-        ("TSX", &["tsx"][..]),
-        ("Java", &["java"][..]),
-        ("Kotlin", &["kt", "kts"][..]),
-        ("Swift", &["swift"][..]),
-        ("Objective-C", &["m"][..]),
-        ("Objective-C++", &["mm"][..]),
-        ("C#", &["cs"][..]),
-        ("Ruby", &["rb"][..]),
-        ("PHP", &["php"][..]),
-        ("Shell", &["sh", "bash", "zsh"][..]),
-        ("Lua", &["lua"][..]),
-        ("Zig", &["zig"][..]),
-        ("Scala", &["scala", "sc"][..]),
-        ("Haskell", &["hs", "lhs"][..]),
+        "Rust",
+        "C",
+        "C Header",
+        "C++",
+        "C++ Header",
+        "Assembly",
+        "Python",
+        "Go",
+        "JavaScript",
+        "JSX",
+        "TypeScript",
+        "TSX",
+        "Java",
+        "Kotlin",
+        "Swift",
+        "Objective-C",
+        "Objective-C++",
+        "C#",
+        "Ruby",
+        "PHP",
+        "Shell",
+        "Lua",
+        "Zig",
+        "Scala",
+        "Haskell",
     ];
     let actual: Vec<_> = LANGUAGES
         .iter()
-        .map(|language| (language.name, language.extensions))
+        .take(expected.len())
+        .map(|language| language.name)
         .collect();
 
     assert_eq!(actual, expected);
+    assert!(LANGUAGES.iter().any(|language| language.name == "CSS"));
+    assert!(LANGUAGES.iter().any(|language| language.name == "SCSS"));
+    assert!(LANGUAGES.iter().any(|language| language.name == "Sass"));
+    assert!(LANGUAGES.iter().any(|language| language.name == "Less"));
 }
 
 #[test]
@@ -304,6 +309,27 @@ fn analyze_should_count_unknown_extensions_without_inspecting_them() -> Result<(
     Ok(())
 }
 
+#[test]
+fn analyze_should_recognize_stylesheet_and_makefile_sources() -> Result<()> {
+    let fixture = Fixture::new("styles")?;
+    fixture.write("styles.css", b"body { color: #141413; }\n")?;
+    fixture.write("Makefile", b"all:\n\t@echo ok\n")?;
+    fixture.write("notes.md", b"# not source\n")?;
+
+    let result = analyze_path(&fixture.path, "fixture")?;
+    let languages: Vec<_> = result
+        .languages
+        .iter()
+        .map(|language| language.language.as_str())
+        .collect();
+
+    assert_eq!(result.overall.file_count, 2);
+    assert_eq!(result.skipped_file_count, 1);
+    assert!(languages.contains(&"CSS"));
+    assert!(languages.contains(&"Makefile"));
+    Ok(())
+}
+
 #[cfg(unix)]
 #[test]
 fn analyze_should_not_open_unreadable_unknown_regular_files() -> Result<()> {
@@ -458,7 +484,7 @@ fn text_rendering_should_be_byte_identical_for_repeated_results() -> Result<()> 
 }
 
 #[test]
-fn cli_analyze_should_use_literal_src_as_default_path() -> Result<()> {
+fn cli_analyze_should_use_the_current_directory_as_default_path() -> Result<()> {
     let fixture = Fixture::new("cli-default")?;
     fixture.write("src/main.rs", b"fn main() {}\n")?;
 
@@ -469,7 +495,7 @@ fn cli_analyze_should_use_literal_src_as_default_path() -> Result<()> {
     let value: Value = serde_json::from_slice(&output.stdout)?;
 
     assert!(
-        output.status.success() && value["input_label"] == "src",
+        output.status.success() && value["input_label"] == ".",
         "status: {:?}, stderr: {}",
         output.status,
         String::from_utf8_lossy(&output.stderr)

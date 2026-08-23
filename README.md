@@ -4,7 +4,7 @@
 [![MIT](https://img.shields.io/crates/l/codensity.svg?style=flat-square)](LICENSE)
 [![CI](https://github.com/LIghtJUNction/codensity/actions/workflows/ci.yml/badge.svg)](https://github.com/LIghtJUNction/codensity/actions/workflows/ci.yml)
 [![database refresh](https://github.com/LIghtJUNction/codensity/actions/workflows/refresh-database.yml/badge.svg)](https://github.com/LIghtJUNction/codensity/actions/workflows/refresh-database.yml)
-[![protocol](https://img.shields.io/badge/protocol-codensity--zstd19--concat--v1-315f54?style=flat-square)](#测量协议)
+[![protocol](https://img.shields.io/badge/protocol-codensity--zstd19--concat--v2-315f54?style=flat-square)](#测量协议)
 
 `codensity` 是一个可复现的源码测量工具。它记录固定源码字节流的压缩表现，并补充重复、熵、噪声、文件分布、语言上下文以及文件/函数视图。它为审查和优化提供证据，不给仓库或作者打分。
 
@@ -34,9 +34,9 @@ codensity analyze . --format json
 
 ## 测量协议
 
-冻结账本协议为 `codensity-zstd19-concat-v1`：
+冻结账本协议为 `codensity-zstd19-concat-v2`。相对 v1，语言表覆盖主流编程语言、样式表（CSS/SCSS/Sass/Less）以及无扩展名的构建文件（如 `Makefile`、`Dockerfile`）。已发布的 `database-v1.json` 仍是 v1 产物，不能与 v2 结果混比。
 
-1. 扫描可识别的普通源码文件，遵循 `.gitignore`，并排除 `.git`、`target`、`node_modules`、`.codensity` 等固定目录和构建产物。
+1. 扫描可识别的普通源码文件，遵循 `.gitignore`，并排除 `.git`、`target`、`node_modules`、`.codensity` 等固定目录和构建产物。扩展名匹配区分大小写；精确文件名优先于扩展名。JSON、YAML、Markdown、HTML 等数据/文档格式仍不计入源码流。`.m` / `.sc` / `.v` 分别固定为 Objective-C、Scala、Verilog。
 2. 按 POSIX 相对路径排序。
 3. 原样串接文件字节：不加入路径、分隔符，也不做文本规范化。
 4. 对这一个字节流以 zstd level 19 压缩，记录 `compressed_bytes / original_bytes`、源码 SHA-256、版本和文件数。
@@ -109,7 +109,7 @@ codensity database update --output database-v1.json
 
 ## 重建与更新数据库
 
-Release 数据库是冻结账本的 schema-v1 产物。`database update` 只下载 `database-v1.json`，校验 GitHub Release 给出的 SHA-256 digest，再验证 schema 与协议，最后原子替换目标文件。若已在本地准备了固定源码快照，可这样重建：
+Release 数据库是冻结账本的 schema-v1 产物。`database update` 只下载 `database-v1.json`，校验 GitHub Release 给出的 SHA-256 digest，再验证 schema 与协议，最后原子替换目标文件。当前官方资产仍标注 v1 协议，在发布 v2 数据库之前会被本版本拒绝。若已在本地准备了固定源码快照，可这样重建：
 
 ```bash
 cargo build --release --locked

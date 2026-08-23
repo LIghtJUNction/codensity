@@ -39,7 +39,7 @@ enum Command {
     /// Analyze a source tree.
     Analyze {
         /// Local source path or a public GitHub repository URL.
-        #[arg(default_value = "src")]
+        #[arg(default_value = ".")]
         input: String,
         /// Output representation.
         #[arg(long, value_enum, default_value_t = OutputFormat::Text)]

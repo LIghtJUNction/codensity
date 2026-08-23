@@ -1,7 +1,9 @@
 # Benchmark corpus
 
 This directory records reproducible, descriptive cohorts for the
-`codensity-zstd19-concat-v1` protocol.  The tracked JSON databases are outputs
+`codensity-zstd19-concat-v1` protocol, retained as a historical cohort. New
+measurements use `codensity-zstd19-concat-v2` and are not comparable to these
+tracked JSON files.  The tracked JSON databases are outputs
 of the release CLI; source snapshots and downloaded archives are deliberately
 not tracked.
 

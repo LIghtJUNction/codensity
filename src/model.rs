@@ -6,8 +6,8 @@ pub const ANALYSIS_SCHEMA_VERSION: u32 = 2;
 pub const LEDGER_SCHEMA_VERSION: u32 = 1;
 /// Database and manifest JSON schema version.
 pub const DATABASE_SCHEMA_VERSION: u32 = 1;
-/// Stable identifier for every metric-affecting protocol-v1 rule.
-pub const PROTOCOL_ID: &str = "codensity-zstd19-concat-v1";
+/// Stable identifier for every metric-affecting protocol-v2 rule.
+pub const PROTOCOL_ID: &str = "codensity-zstd19-concat-v2";
 /// Stable identifier for the multi-signal profile rules.
 pub const PROFILE_PROTOCOL_ID: &str = "codensity-information-profile-v2";
 /// Schema version for the two-file cross-stream relation result.
