@@ -30,7 +30,7 @@ impl Drop for Fixture {
 
 #[test]
 fn install_script_verifies_the_binary_in_a_custom_install_root()
-    -> Result<(), Box<dyn std::error::Error>> {
+-> Result<(), Box<dyn std::error::Error>> {
     let fixture = Fixture::new()?;
     let fake_bin = fixture.path.join("fake-bin");
     let install_root = fixture.path.join("install-root");
