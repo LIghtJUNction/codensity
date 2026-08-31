@@ -45,4 +45,8 @@ if ((dry_run)); then
 fi
 
 cargo "${args[@]}"
-codensity --version
+if [[ -n ${CARGO_INSTALL_ROOT:-} ]]; then
+  "$CARGO_INSTALL_ROOT/bin/codensity" --version
+else
+  codensity --version
+fi
