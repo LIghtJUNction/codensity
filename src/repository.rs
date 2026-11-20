@@ -603,10 +603,7 @@ fn is_repository_segment(value: &str) -> bool {
 }
 
 fn is_revision_segment(value: &str) -> bool {
-    !value.is_empty()
-        && value
-            .bytes()
-            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-'))
+    is_repository_segment(value)
 }
 
 fn is_commit_sha(value: &str) -> bool {
